@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../frontend"
+		},
+		{
+			"path": "../../unifyre-extension-sdk"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/build": true,
+			"**/dist": true
+		}
+	}
+}
