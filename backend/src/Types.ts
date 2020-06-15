@@ -2,7 +2,7 @@ import { Network } from "ferrum-plumbing";
 
 export interface PoolDropClaim {
     address: string;
-    email: string;
+    userId: string;
 }
 
 export interface PoolDrop {

@@ -6,7 +6,7 @@ import { PoolDrop, PoolDropClaim } from "./Types";
 import { PoolDropModel } from "./MongoTypes";
 import { AppLinkRequest } from "unifyre-extension-sdk/dist/client/model/AppLink";
 
-export class UserService extends MongooseConnection implements Injectable {
+export class PoolDropService extends MongooseConnection implements Injectable {
     private model: Model<PoolDrop & Document, {}> | undefined;
     constructor(
         private uniClientFac: () => UnifyreExtensionKitClient,
@@ -25,18 +25,18 @@ export class UserService extends MongooseConnection implements Injectable {
         await client.signInWithToken(token);
         const userProfile = client.getUserProfile();
         const curreny = link!.currency;
-        const email = userProfile.email;
+        const userId = userProfile.userId;
         const address = userProfile?.accountGroups[0]?.addresses[curreny]?.address;
         ValidationUtils.isTrue(!!address, `No address was found for ${link?.symbol}`);
         ValidationUtils.isTrue(!link!.cancelled, "Link is already cancelled");
         ValidationUtils.isTrue(!link!.completedLink, "Link is already completed");
-        ValidationUtils.isTrue(!link!.claims.find(c => (!!email && c.email === email) || c.address === address),
+        ValidationUtils.isTrue(!link!.claims.find(c => (c.userId === userId) || c.address === address),
             "You have already claimed this link");
         ValidationUtils.isTrue(link!.claims.length < link!.numberOfParticipants,
             "This link is fully claimed. Hopefully next time");
         const newClaim = {
             address,
-            email,
+            userId,
         } as PoolDropClaim;
         await this.update({...link!, claims: link!.claims.concat(newClaim)});
         return (await this.get(linkId))!;
@@ -59,7 +59,7 @@ export class UserService extends MongooseConnection implements Injectable {
         await client.signInWithToken(uniToken);
         const userProfile = client.getUserProfile();
         ValidationUtils.isTrue(!!userProfile, 'Error connecting to unifyre');
-        const message = `${link.displayName} is distributon ${link.participationAmountFormatted} ${link.symbol} to ${link.numberOfParticipants} lucky individuals using the Unifyre Wallet`;
+        const message = `${userProfile.displayName} is distributing ${link.participationAmountFormatted} ${link.symbol} to ${link.numberOfParticipants} lucky individuals using the Unifyre Wallet`;
         const linkId = await client.createLinkObject({
             imageTopTitle: 'POOL DROP',
             imageMainLine: `${link.participationAmountFormatted}`,
@@ -78,17 +78,26 @@ export class UserService extends MongooseConnection implements Injectable {
         return link;
     }
 
-    private async save(pd: PoolDrop) { 
-        this.verifyInit();
-        return new this.model!(pd).save();
-    }
-
-    private async get(id: string): Promise<PoolDrop|undefined> {
+    async get(id: string): Promise<PoolDrop|undefined> {
+        ValidationUtils.isTrue(!!id, '"id" must be provided');
         const pd = await this.model?.findOne({id}).exec();
         if (!pd) return;
         return pd.toJSON();
     }
 
+    async getActiveLinkDrops(creatorId: string): Promise<string[]> {
+        ValidationUtils.isTrue(!!creatorId, '"creatorId" must be provided');
+        const drops = await this.model!.find({
+            "$and": [ {creatorId}, {cancelled: false}, {executed: false} ]
+        })
+        return drops.map(d => d.id);
+    }
+
+    private async save(pd: PoolDrop) { 
+        this.verifyInit();
+        return new this.model!(pd).save();
+    }
+    
     private async update(link: PoolDrop) {
         const newPd = {...link};
         const version = link.version;
@@ -100,5 +109,5 @@ export class UserService extends MongooseConnection implements Injectable {
         return updated?.toJSON();
     }
 
-    __name__() { return 'UserService'; }
+    __name__() { return 'PoolDropService'; }
 }

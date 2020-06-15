@@ -9,12 +9,13 @@ import {
 } from "ferrum-plumbing";
 import { ClientModule, UnifyreExtensionKitClient } from 'unifyre-extension-sdk';
 import { getEnv } from './MongoTypes';
-import { UserService } from './UserService';
+import { PoolDropService } from './PoolDropService';
 
 const global = { init: false };
 
-const UNIFYRE_BACKED = 'https://ube.ferrumnetwork.io/api/';
-const POOLDROP_APP_ID = 'WYRE_WIDGET'; // TODO: Add POOL_DROP to the backend.
+// const UNIFYRE_BACKED = 'https://ube.ferrumnetwork.io/api/';
+const UNIFYRE_BACKED = 'http://192.168.1.244:9000/api/';
+const POOLDROP_APP_ID = 'POOL_DROP';
 
 async function init() {
     if (global.init) {
@@ -73,19 +74,19 @@ export class PoolDropModule implements Module {
         await container.registerModule(
             new UnifyreBackendProxyModule(POOLDROP_APP_ID, poolDropConfig.authRandomKey));
         container.register('JsonStorage', () => new Object());
-        container.registerSingleton(UserService,
-                c => new UserService(
+        container.registerSingleton(PoolDropService,
+                c => new PoolDropService(
                     () => c.get(UnifyreExtensionKitClient),
                     ));
 
         container.registerSingleton('LambdaHttpHandler',
-                c => new HttpHandler(c.get(UnifyreBackendProxyService), c.get(UserService)));
+                c => new HttpHandler(c.get(UnifyreBackendProxyService), c.get(PoolDropService)));
         container.registerSingleton("LambdaSqsHandler",
             () => new Object());
         container.register(LoggerFactory,
             () => new LoggerFactory((name: string) => new ConsoleLogger(name)));
         // container.register('KMS', () => new KMS({region}));
         // container.register(KmsCryptor, c => new KmsCryptor(c.get('KMS'), addressHandlerConfig.cmkKeyArn));
-        await container.get<UserService>(UserService).init(poolDropConfig);
+        await container.get<PoolDropService>(PoolDropService).init(poolDropConfig);
     }
 }

@@ -4,7 +4,7 @@ import {
     JsonRpcRequest,
     ValidationUtils
 } from "ferrum-plumbing";
-import { UserService } from "./UserService";
+import { PoolDropService } from "./PoolDropService";
 import { PoolDrop } from "./Types";
 import Big from 'big.js';
 
@@ -24,7 +24,7 @@ function handlePreflight(request: any) {
 }
 
 export class HttpHandler implements LambdaHttpHandler {
-    constructor(private uniBack: UnifyreBackendProxyService, private userSvc: UserService) { }
+    constructor(private uniBack: UnifyreBackendProxyService, private userSvc: PoolDropService) { }
 
     async handle(request: LambdaHttpRequest, context: any): Promise<LambdaHttpResponse> {
         let body: any = undefined;
@@ -42,13 +42,18 @@ export class HttpHandler implements LambdaHttpHandler {
                 case 'signInToServer':
                     const {token} = req.data;
                     const [userProfile, session] = await this.uniBack.signInToServer(token);
-                    body = {userProfile, session};
+                    const activePoolDrops = await this.userSvc.getActiveLinkDrops(userProfile.userId);
+                    body = {userProfile, activePoolDrops, session};
                     break;
                 case 'createLinkAndRegister':
                     body = await this.createLinkAndRegister(req);
                     break;
                 case 'cancelLink':
                     body = await this.cancelLink(userId!, req);
+                    break;
+                case 'getLink':
+                    ValidationUtils.isTrue(!!userId, 'Not signed in');
+                    body = await this.getLink(req);
                     break;
                 case 'claim':
                     body = await this.claim(req);
@@ -90,6 +95,14 @@ export class HttpHandler implements LambdaHttpHandler {
         }
     }
 
+    async getLink(req: JsonRpcRequest): Promise<PoolDrop> {
+        const {linkId} = req.data;
+        validateFieldsRequired({linkId});
+        const pd = await this.userSvc.get(linkId);
+        ValidationUtils.isTrue(!!pd, "Link not found");
+        return pd!;
+    }
+
     async claim(req: JsonRpcRequest): Promise<PoolDrop> {
         const {token, linkId} = req.data;
         validateFieldsRequired({token, linkId});
@@ -126,6 +139,8 @@ export class HttpHandler implements LambdaHttpHandler {
             claims: [],
             cancelled: false,
             executed: false,
+            completedLink,
+            completedMessage,
         } as PoolDrop;
         return this.userSvc.createLinkAndRegister(token, link);
     }
