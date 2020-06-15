@@ -6165,7 +6165,7 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-extension-sdk@git+https://github.com/ferrumnet/unifyre-extension-sdk.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#b69ae97b075f721e0b8d4b157c53a53f6257b175"
+  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#1cba11eaefdc985fa68071f72d417832b6e223f5"
   dependencies:
     cross-fetch "^3.0.4"
     ferrum-plumbing "git+https://github.com/ferrumnet/ferrum-plumbing.git"

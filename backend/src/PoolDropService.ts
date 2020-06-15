@@ -24,12 +24,16 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         const client = this.uniClientFac();
         await client.signInWithToken(token);
         const userProfile = client.getUserProfile();
-        const curreny = link!.currency;
+        ValidationUtils.isTrue(!!userProfile, 'Could not sign in to unifyre - bad token');
         const userId = userProfile.userId;
-        const address = userProfile?.accountGroups[0]?.addresses[curreny]?.address;
+        const addresses = userProfile?.accountGroups[0]?.addresses || [];
+        console.log('ACCOINT GROUP IS ', addresses);
+        ValidationUtils.isTrue(!!addresses.length, 'User has no address');
+        ValidationUtils.isTrue(addresses.length == 1, 'User has more than one address');
+        const address = addresses[0].address;
         ValidationUtils.isTrue(!!address, `No address was found for ${link?.symbol}`);
         ValidationUtils.isTrue(!link!.cancelled, "Link is already cancelled");
-        ValidationUtils.isTrue(!link!.completedLink, "Link is already completed");
+        ValidationUtils.isTrue(!link!.executed, "Link is already completed");
         ValidationUtils.isTrue(!link!.claims.find(c => (c.userId === userId) || c.address === address),
             "You have already claimed this link");
         ValidationUtils.isTrue(link!.claims.length < link!.numberOfParticipants,
