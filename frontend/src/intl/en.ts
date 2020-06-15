@@ -22,6 +22,7 @@ cancel-dlg-title = Cancel the pool drop? Are you sure?
 cancel-dlg-details = You are about to cancel the pool drop! All existing claims will be discarded and THIS CANNOT BE UNDONE!
 cancel-dlg-yes = Yes
 cancel-dlg-no = No
+your-address = Your address
 
 ## Pool Drop Create
 create-pool-drop = Create pool drop

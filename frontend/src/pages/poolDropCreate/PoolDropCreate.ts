@@ -38,8 +38,7 @@ export interface PoolDropCreateDispatch {
 const mapStateToProps = (root: RootState) => {
     const userProfile = root.data.userData?.profile;
     const addr = userProfile?.accountGroups[0]?.addresses || {};
-    const currency = Object.keys(addr)[0] || '';
-    const address = addr[currency] || {};
+    const address = addr[0] || {};
     const state = root.ui.create;
     const preferences = root.data.userPreference;
     const num = Number.isFinite(Number(state.numberOfParticipants)) ?

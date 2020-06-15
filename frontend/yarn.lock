@@ -11607,8 +11607,9 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-extension-sdk@git+https://github.com/ferrumnet/unifyre-extension-sdk.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#3043b4a06593a7eb2b25bf33120ae52f05242125"
+  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#1cba11eaefdc985fa68071f72d417832b6e223f5"
   dependencies:
+    cross-fetch "^3.0.4"
     ferrum-plumbing "git+https://github.com/ferrumnet/ferrum-plumbing.git"
 
 "unifyre-react-helper@git+https://github.com/ferrumnet/unifyre-react-helper.git":
@@ -11619,7 +11620,7 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-web-components@git+https://github.com/ferrumnet/unifyre-web-components.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-web-components.git#c71568c5807440bfab2110e8ef153ce37232979d"
+  resolved "git+https://github.com/ferrumnet/unifyre-web-components.git#de16fa0c17d391398fd5ac1a701eff06e550eb25"
   dependencies:
     react-icons "^3.10.0"
     unifyre-react-helper "git+https://github.com/ferrumnet/unifyre-react-helper.git"

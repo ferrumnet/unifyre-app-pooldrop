@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import {
     Page, PageTopPart, Row, Gap, ThemedText, ThemedButton, ErrorMessage, InputGroupAddon, ThemedLink,
     // @ts-ignore
@@ -6,14 +6,16 @@ import {
 import { ClaimProps, ClaimDispatch, Claim } from './Claim';
 import { connect } from 'react-redux';
 import { formatter } from '../../services/RatesService';
-import { intl } from 'unifyre-react-helper';
+import { intl, ThemeContext, Theme } from 'unifyre-react-helper';
 import { Utils } from '../../common/Utils';
 import { useParams } from 'react-router';
-import { IoIosCheckmarkCircle, IoIosSad } from 'react-icons/io';
+import { IoIosCheckmarkCircle } from 'react-icons/io';
+import { GiRocketFlight } from 'react-icons/gi';
 import { useAlert } from 'react-alert';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
 function ClaimComponent(props: ClaimProps&ClaimDispatch) {
+    const theme = useContext(ThemeContext);
     const {linkId} = useParams();
     const linkIdQuery = Utils.getQueryparam('linkId');
     const {onClaim, onLoad, id} = props;
@@ -34,11 +36,20 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
     if (props.alreadyClaimed) {
         details = (
             <>
-                <Row withPadding center>
-                    <IoIosCheckmarkCircle size={42}/>
+                <Row withPadding centered>
+                    <IoIosCheckmarkCircle
+                        size={theme.get(Theme.Text.h1Size) as any * 4}
+                        color={theme.get(Theme.Colors.textColor) as any}/>
+                </Row>
+                <Row withPadding centered>
+                    <ThemedText.H2>{intl('link-is-claimed')}</ThemedText.H2>
                 </Row>
                 <Row withPadding center>
-                    <ThemedText.H2>{intl('link-is-claimed')}</ThemedText.H2>
+                    <ThemedText.H3>{intl('your-address')}</ThemedText.H3>
+                </Row>
+                <Row withPadding center>
+                    <ThemedLink text={props.address}
+                        onClick={() => window.location.href = props.addressUrl} />
                 </Row>
                 <Row withPadding center>
                     <ThemedText.P>{props.message}</ThemedText.P>
@@ -50,18 +61,21 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
         details = (
             <>
                 <Row centered>
-                  <IoIosSad size={36} />
+                  <GiRocketFlight 
+                        size={theme.get(Theme.Text.h1Size) as any * 6}
+                        color={theme.get(Theme.Colors.textColor) as any}/>
                 </Row>
-                <Row withPadding center>
+                <Row withPadding centered>
                     <ThemedText.H3>{intl('link-is-fully-claimed')}</ThemedText.H3>
                 </Row>
-                <Row withPadding center>
+                <Row withPadding centered>
                     <ThemedText.P>{props.message}</ThemedText.P>
                 </Row>
                 {redirect}
             </>
         );
-    } else if (props.cancelled) {
+    }
+    if (props.cancelled) {
         details = (
             <>
                 <Row withPadding centered>

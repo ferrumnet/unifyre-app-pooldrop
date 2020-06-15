@@ -26,6 +26,8 @@ export interface ClaimProps extends ClaimState {
     isOwner: boolean;
     claimedCount: number;
     claimedTotal: number;
+    address: string;
+    addressUrl: string;
 }
 
 export interface ClaimDispatch {
@@ -41,8 +43,7 @@ const mapStateToProps = (root: RootState) => {
     const userId = root.data.userData?.profile?.userId;
     const isOwner = userId === pd.creatorId;
     const addrs = (root.data.userData?.profile?.accountGroups || [])[0]?.addresses ||  {};
-    const cur = Object.keys(addrs)[0] || '_';
-    const address = addrs[cur]?.address;
+    const address = addrs[0]?.address;
     const alreadyClaimed = pd.claims.find(cl => (cl.userId === userId) || cl.address === address) || false;
     const linkUrl = `${BASE_LINK_URL}/${pd.id}`;
     return {
@@ -60,6 +61,8 @@ const mapStateToProps = (root: RootState) => {
         claimedTotal: pd.numberOfParticipants,
         claimedCount: pd.claims.length,
         linkUrl,
+        address: address,
+        addressUrl: `https://etherscan.io/address/${address}`,
     } as ClaimProps;
 };
 
@@ -70,7 +73,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
     },
     onClaim: async (props, linkId) => {
         try {
-            if (props.error) { return; }
+            if (props.error || props.alreadyClaimed || props.filled) { return; }
             // First load then claim.
             ValidationUtils.isTrue(!!linkId, 'LinkId must be provided');
             const client = inject<PoolDropClient>(PoolDropClient);

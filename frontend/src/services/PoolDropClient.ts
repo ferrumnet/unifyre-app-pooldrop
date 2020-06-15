@@ -7,7 +7,7 @@ import { formatter } from "./RatesService";
 import Big from 'big.js';
 import { Utils } from "../common/Utils";
 
-const BACKEND = 'http://localhost:8080'; // TODO: BACKEND HERE
+const BACKEND = 'http://localhost:8080';
 // const BACKEND = 'https://mkeldwiw63.execute-api.us-east-2.amazonaws.com/default/wyre-backend'; 
 
 export const PoolDropServiceActions = {
@@ -136,7 +136,7 @@ export class PoolDropClient implements Injectable {
             return this.getPoolDrop(dispatch, linkId);
         } catch (e) {
             console.error('Error claiming', e);
-            dispatch(addAction(Actions.CLAIM_FAILED, { message: 'Could not claim the link.' }));
+            dispatch(addAction(Actions.CLAIM_FAILED, { message: 'Could not claim the link. ' + e.message }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'claim' }));
         }
@@ -188,9 +188,13 @@ export class PoolDropClient implements Injectable {
                 return resText ? JSON.parse(resText) : undefined;
             }
             const error = resText;
+            let jerror: any;
+            try {
+                jerror = JSON.parse(error);
+            } catch (e) {}
             console.error('Server returned an error when calling ', req, {
                 status: res.status, statusText: res.statusText, error});
-            throw new Error('Error calling backend: ' + error);
+            throw new Error(jerror?.error ? jerror.error : error);
         } catch (e) {
             console.error('Error calling api with ', req, e);
             throw e;
