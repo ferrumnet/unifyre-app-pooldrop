@@ -19,12 +19,12 @@ function DashboardComponent(props: DashboardProps&DashboardDispatch) {
     useEffect(() => {
         onLoad();
     }, [onLoad]);
+    const linkId = Utils.getQueryparam('linkId');
     useEffect(() => {
-      if (activePoolDrop) {
+      if (activePoolDrop && !linkId) {
         history.replace(`/claim/${activePoolDrop}`);
       }
-    }, [activePoolDrop]);
-    const queryAction = Utils.getQueryparam('action');
+    }, [activePoolDrop, linkId]);
     if (props.initialized) {
         // Render the routes
         return (
@@ -34,7 +34,7 @@ function DashboardComponent(props: DashboardProps&DashboardDispatch) {
                   <ClaimContainer />
                 </Route>
                 <Route path='/'>
-                  {queryAction === 'claim' ? <ClaimContainer /> : <PoolDropCreateContainer />}
+                  {!!linkId ? <ClaimContainer /> : <PoolDropCreateContainer />}
                 </Route>
               </Switch>
             </>

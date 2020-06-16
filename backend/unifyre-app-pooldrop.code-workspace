@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../../unifyre-web-components"
+		},
+		{
+			"path": "../contract"
 		}
 	],
 	"settings": {
