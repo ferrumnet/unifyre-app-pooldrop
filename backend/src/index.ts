@@ -10,12 +10,21 @@ import {
 import { ClientModule, UnifyreExtensionKitClient } from 'unifyre-extension-sdk';
 import { getEnv } from './MongoTypes';
 import { PoolDropService } from './PoolDropService';
+import { SmartContratClient } from './SmartContractClient';
 
 const global = { init: false };
-
-// const UNIFYRE_BACKED = 'https://ube.ferrumnetwork.io/api/';
-const UNIFYRE_BACKED = 'http://192.168.1.244:9000/api/';
 const POOLDROP_APP_ID = 'POOL_DROP';
+
+const IS_DEV = true;
+
+const UNIFYRE_BACKED_PROD = 'https://ube.ferrumnetwork.io/api/';
+const UNIFYRE_BACKED_DEV = 'http://192.168.1.244:9000/api/';
+const UNIFYRE_BACKED = IS_DEV ? UNIFYRE_BACKED_DEV : UNIFYRE_BACKED_PROD;
+
+const POOL_DROP_SMART_CONTRACT_ADDRESS_PROD = '';
+const POOL_DROP_SMART_CONTRACT_ADDRESS_DEV = '';
+const POOL_DROP_ADDRESS = IS_DEV ? POOL_DROP_SMART_CONTRACT_ADDRESS_DEV : POOL_DROP_SMART_CONTRACT_ADDRESS_PROD;
+
 
 async function init() {
     if (global.init) {
@@ -64,19 +73,34 @@ export class PoolDropModule implements Module {
         //   c.get(LoggerFactory),
         // ));
 
-        const poolDropConfig: MongooseConfig&{authRandomKey: string,
-            wyreSecretKey: string, wyreApiKey: string} = {
+        // TODO: CONFIGURE THE SIGNING PRIVATE KEY AS KMS ENCRYPTED
+
+        const poolDropConfig: MongooseConfig&{
+            authRandomKey: string, signingKey: string, web3Provider: string} = {
             connectionString: getEnv('MONGOOSE_CONNECTION_STRING'),
             authRandomKey: getEnv('RANDOM_SECRET'),
-        } as any
+            signingKey: getEnv('REQUEST_SIGNING_KEY'),
+            web3Provider: getEnv('WEB3_PROVIDER'),
+        } as any;
 
+        // This will register sdk modules. Good for client-side, for server-side we also need the next
+        // step
         await container.registerModule(new ClientModule(UNIFYRE_BACKED, POOLDROP_APP_ID));
+        
+        // Note: we register UnifyreBackendProxyModule for the backend applications
+        // this will ensure that the ExtensionClient does not cache the token between different
+        // requests, and also it will ensure that client will sign the requests using sigining_key.
         await container.registerModule(
-            new UnifyreBackendProxyModule(POOLDROP_APP_ID, poolDropConfig.authRandomKey));
+            new UnifyreBackendProxyModule(POOLDROP_APP_ID, poolDropConfig.authRandomKey,
+                poolDropConfig.signingKey,));
+
+        container.registerSingleton(SmartContratClient,
+            () => new SmartContratClient(poolDropConfig.web3Provider, POOL_DROP_ADDRESS));
         container.register('JsonStorage', () => new Object());
         container.registerSingleton(PoolDropService,
                 c => new PoolDropService(
                     () => c.get(UnifyreExtensionKitClient),
+                    c.get(SmartContratClient),
                     ));
 
         container.registerSingleton('LambdaHttpHandler',

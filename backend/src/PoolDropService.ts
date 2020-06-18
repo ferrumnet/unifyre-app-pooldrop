@@ -5,11 +5,13 @@ import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 import { PoolDrop, PoolDropClaim } from "./Types";
 import { PoolDropModel } from "./MongoTypes";
 import { AppLinkRequest } from "unifyre-extension-sdk/dist/client/model/AppLink";
+import { SmartContratClient } from "./SmartContractClient";
 
 export class PoolDropService extends MongooseConnection implements Injectable {
     private model: Model<PoolDrop & Document, {}> | undefined;
     constructor(
         private uniClientFac: () => UnifyreExtensionKitClient,
+        private contract: SmartContratClient,
     ) { super(); }
 
     initModels(con: Connection): void {
@@ -27,7 +29,6 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         ValidationUtils.isTrue(!!userProfile, 'Could not sign in to unifyre - bad token');
         const userId = userProfile.userId;
         const addresses = userProfile?.accountGroups[0]?.addresses || [];
-        console.log('ACCOINT GROUP IS ', addresses);
         ValidationUtils.isTrue(!!addresses.length, 'User has no address');
         ValidationUtils.isTrue(addresses.length == 1, 'User has more than one address');
         const address = addresses[0].address;
@@ -74,12 +75,49 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         } as AppLinkRequest<{}>);
         link.id = linkId;
         link.creatorId = userProfile.userId;
+        link.creatorAddress = (userProfile.accountGroups[0]?.addresses || [])[0]?.address,
         link.createdAt = Date.now();
         link.displayName = userProfile.displayName;
         link.version = 0;
         link.claims = [];
         await this.save(link);
         return link;
+    }
+
+    async signAndSendAsync(linkId: string, uniToken: string): Promise<string> {
+        const poolDrop = await this.get(linkId);
+        ValidationUtils.isTrue(!!poolDrop, 'Pool drop not found');
+        ValidationUtils.isTrue(linkId === poolDrop?.creatorId, "Not your pooldrop");
+        ValidationUtils.isTrue(!poolDrop!.cancelled, 'Poold drop is already cancelled');
+        ValidationUtils.isTrue(!poolDrop!.executed, 'Poold drop is already executed');
+
+        const txs = await this.contract.createPoolDrop(
+            poolDrop!.currency.split(':')[1],
+            poolDrop!.currency,
+            poolDrop!.symbol,
+            poolDrop!.creatorAddress,
+            poolDrop!.claims.map(c => c.address),
+            poolDrop!.participationAmount,
+        );
+
+        const client = this.uniClientFac();
+        await client.setToken(uniToken);
+        return await client.sendTransactionAsync('ETHEREUM', txs);
+    }
+
+    async addTransactionIds(linkId: string, transactionIds: string[]): Promise<PoolDrop> {
+        ValidationUtils.isTrue(!!linkId, '"linkId" must be provided');
+        const pd = await this.get(linkId);
+        ValidationUtils.isTrue(!!pd, 'Pool drop not found');
+        if (pd!.transactionIds?.length) {
+            transactionIds = transactionIds.filter(tid => pd!.transactionIds.indexOf(tid) < 0);
+        }
+        if (!transactionIds.length) {
+            return pd!;
+        }
+        pd!.transactionIds = (pd!.transactionIds || []).concat(transactionIds);
+        pd!.executed = true;
+        return this.update(pd!);
     }
 
     async get(id: string): Promise<PoolDrop|undefined> {

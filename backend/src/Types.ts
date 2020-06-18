@@ -10,6 +10,7 @@ export interface PoolDrop {
     id: string;
     network: Network;
     creatorId: string;
+    creatorAddress: string;
     displayName: string;
     createdAt: number;
     currency: string;
@@ -21,7 +22,7 @@ export interface PoolDrop {
     claims: PoolDropClaim[];
     cancelled: boolean;
     executed: boolean;
-    transactionId?: string;
+    transactionIds: string[];
     completedMessage?: string;
     completedLink?: string;
 }

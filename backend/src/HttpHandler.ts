@@ -24,7 +24,9 @@ function handlePreflight(request: any) {
 }
 
 export class HttpHandler implements LambdaHttpHandler {
-    constructor(private uniBack: UnifyreBackendProxyService, private userSvc: PoolDropService) { }
+    constructor(private uniBack: UnifyreBackendProxyService,
+        private userSvc: PoolDropService,
+        ) { }
 
     async handle(request: LambdaHttpRequest, context: any): Promise<LambdaHttpResponse> {
         let body: any = undefined;
@@ -57,6 +59,14 @@ export class HttpHandler implements LambdaHttpHandler {
                     break;
                 case 'claim':
                     body = await this.claim(req);
+                    break;
+                case 'signAndSendAsync':
+                    ValidationUtils.isTrue(!!userId, 'Not signed in');
+                    body = await this.signAndSendAsync(req);
+                    break;
+                case 'transactionsReceived':
+                    ValidationUtils.isTrue(!!userId, 'Not signed in');
+                    body = await this.transactionsReceived(req);
                     break;
                 default:
                     return {
@@ -95,6 +105,12 @@ export class HttpHandler implements LambdaHttpHandler {
         }
     }
 
+    async transactionsReceived(req: JsonRpcRequest): Promise<PoolDrop> {
+        const {linkId, transactionIds} = req.data;
+        validateFieldsRequired({linkId, transactionIds});
+        return this.userSvc.addTransactionIds(linkId, transactionIds);
+    }
+
     async getLink(req: JsonRpcRequest): Promise<PoolDrop> {
         const {linkId} = req.data;
         validateFieldsRequired({linkId});
@@ -126,6 +142,7 @@ export class HttpHandler implements LambdaHttpHandler {
         const link = {
             version: 0,
             creatorId: '',
+            creatorAddress: '',
             createdAt: 0,
             displayName: '',
             id: '',
@@ -143,6 +160,14 @@ export class HttpHandler implements LambdaHttpHandler {
             completedMessage,
         } as PoolDrop;
         return this.userSvc.createLinkAndRegister(token, link);
+    }
+
+    async signAndSendAsync(req: JsonRpcRequest): Promise<{requestId: string}> {
+        const {linkId, token} = req.data;
+        ValidationUtils.isTrue(!!linkId, '"linkId" must be provided');
+        ValidationUtils.isTrue(!!token, '"token" must be provided');
+        const requestId = await this.userSvc.signAndSendAsync(linkId, token);
+        return {requestId};
     }
 }
 

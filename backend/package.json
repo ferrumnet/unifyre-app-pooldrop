@@ -40,6 +40,7 @@
     "cross-fetch": "^3.0.4",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "mongoose": "^5.7.7",
-    "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git"
+    "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
+    "web3": "^1.2.9"
   }
 }
