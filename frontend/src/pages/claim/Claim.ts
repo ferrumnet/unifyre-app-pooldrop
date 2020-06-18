@@ -99,7 +99,14 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
         }
     },
     onSign: async props => {
-        // TODO: Implement
+        const result = await Dialogue.show(
+            intl('sign-dlg-title'),
+            intl('sign-dlg-details'),
+            [{key: 'ok', label: intl('btn-ok')}, {key: 'cancel', label: intl('btn-cancel')}])
+        if (result === 'ok') {
+            const client = inject<PoolDropClient>(PoolDropClient);
+            client.cancel(dispatch, linkId);
+        }
     }
 } as ClaimDispatch);
 

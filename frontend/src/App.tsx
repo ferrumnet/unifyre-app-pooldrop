@@ -4,7 +4,7 @@ import {ThemeContext, ThemeConstantProvider, Theme, defaultDarkThemeConstantsBui
 import {
   BrowserRouter as Router,
 } from "react-router-dom";
-import { transitions, positions, Provider as AlertProvider } from 'react-alert'
+import { Provider as AlertProvider } from 'react-alert'
 import { WaitingContainer } from './components/Waiting';
 import { DashboardContainer } from './pages/dashboard/DashboardContainer';
 import { Provider } from 'react-redux';

@@ -23,6 +23,8 @@ cancel-dlg-details = You are about to cancel the pool drop! All existing claims 
 cancel-dlg-yes = Yes
 cancel-dlg-no = No
 your-address = Your address
+sign-dlg-title = Sign transaction in Unifyre
+sign-dlg-details = You will be asked to sign two transactions in your Unifyre wallet. If you did not receive a notification, make sure to enable notifications and try again.
 
 ## Pool Drop Create
 create-pool-drop = Create pool drop

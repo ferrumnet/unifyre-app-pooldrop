@@ -6,6 +6,7 @@ import { PoolDrop } from "../common/Types";
 import { formatter } from "./RatesService";
 import Big from 'big.js';
 import { Utils } from "../common/Utils";
+import { UnifyreExtensionKitClient } from 'unifyre-extension-sdk';
 
 const BACKEND = 'http://d3b69637c51d.ngrok.io';
 // const BACKEND = 'http://localhost:8080';
@@ -29,6 +30,9 @@ const Actions = PoolDropServiceActions;
 
 export class PoolDropClient implements Injectable {
     private jwtToken: string = '';
+    constructor(
+        private client: UnifyreExtensionKitClient,
+    ) { }
 
     __name__() { return 'PoolDropClient'; }
 
@@ -157,6 +161,39 @@ export class PoolDropClient implements Injectable {
             dispatch(addAction(Actions.CLAIM_FAILED, { message: 'Could not cancel the link.' + e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'cancel' }));
+        }
+    }
+
+    async signAndSend(dispatch: Dispatch<AnyAction>, linkId: string) {
+        try {
+            dispatch(addAction(CommonActions.WAITING, { source: 'signAndSend' }));
+            const token = this.getToken(dispatch);
+            if (!token) { return; }
+            const {requestId} = await this.api({
+                command: 'signAndSendAsync', data: {linkId, token}, params: []
+            } as JsonRpcRequest) as {requestId: string};
+            if (!requestId) {
+                dispatch(addAction(Actions.CLAIM_FAILED, { message: 'Could not send a sign request.' }));
+            }
+            this.client.setToken(token);
+            const transactionIds = await this.client.getSendTransactionResponse(requestId);
+            if (transactionIds) {
+                await this.api({
+                    command: 'transactionsReceived', data: { transactionIds, linkId }, params: []
+                } as JsonRpcRequest) as {requestId: string};
+                return this.getPoolDrop(dispatch, linkId);
+            } else {
+                dispatch(addAction(Actions.CLAIM_FAILED, { message:
+                    'No transaction ID was received from unifyre.' +
+                    ' Make sure to doube check your unifyre wallet and etherscan to ensure there was ' +
+                    'no transaction submitted to chain before retrying. ' +
+                    'Otherwise you may risk double paying a link drop' }));
+            }
+        } catch (e) {
+            console.error('Error signAndSend', e);
+            dispatch(addAction(Actions.CLAIM_FAILED, { message: 'Could send a sign request.' + e.message || '' }));
+        } finally {
+            dispatch(addAction(CommonActions.WAITING_DONE, { source: 'signAndSend' }));
         }
     }
 
