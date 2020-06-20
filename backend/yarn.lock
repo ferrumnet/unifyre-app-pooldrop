@@ -7397,7 +7397,7 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-extension-sdk@git+https://github.com/ferrumnet/unifyre-extension-sdk.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#8aa9ebbef049c97549d98ea8eebcd00f49ac2f51"
+  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#4a623d010c81babd91e0927f5231b1ff86beae82"
   dependencies:
     cross-fetch "^3.0.4"
     elliptic "git+https://github.com/ferrumnet/elliptic.git"

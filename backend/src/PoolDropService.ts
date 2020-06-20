@@ -84,24 +84,31 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         return link;
     }
 
-    async signAndSendAsync(linkId: string, uniToken: string): Promise<string> {
+    async signAndSendAsync(userId: string, linkId: string, uniToken: string): Promise<string> {
         const poolDrop = await this.get(linkId);
         ValidationUtils.isTrue(!!poolDrop, 'Pool drop not found');
-        ValidationUtils.isTrue(linkId === poolDrop?.creatorId, "Not your pooldrop");
+        ValidationUtils.isTrue(userId === poolDrop?.creatorId, "Not your pooldrop");
         ValidationUtils.isTrue(!poolDrop!.cancelled, 'Poold drop is already cancelled');
         ValidationUtils.isTrue(!poolDrop!.executed, 'Poold drop is already executed');
 
+        const client = this.uniClientFac();
+        await client.signInWithToken(uniToken);
+        const userProfile = client.getUserProfile();
+        ValidationUtils.isTrue(!!userProfile, "Could not sign in. Token might have expired");
+        const creatorAddress = (userProfile.accountGroups[0]?.addresses || [])[0];
+        ValidationUtils.isTrue(!!creatorAddress, "Signed in user has no address");
+        ValidationUtils.isTrue(creatorAddress.currency === poolDrop!.currency,
+            "Could not find address for " + poolDrop!.currency);
         const txs = await this.contract.createPoolDrop(
             poolDrop!.currency.split(':')[1],
             poolDrop!.currency,
-            poolDrop!.symbol,
-            poolDrop!.creatorAddress,
+            creatorAddress.symbol || poolDrop!.symbol,
+            creatorAddress.address,
             poolDrop!.claims.map(c => c.address),
             poolDrop!.participationAmount,
         );
+        console.log('About to send transactions to server', txs);
 
-        const client = this.uniClientFac();
-        await client.setToken(uniToken);
         return await client.sendTransactionAsync('ETHEREUM', txs);
     }
 

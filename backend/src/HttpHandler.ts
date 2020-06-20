@@ -62,7 +62,7 @@ export class HttpHandler implements LambdaHttpHandler {
                     break;
                 case 'signAndSendAsync':
                     ValidationUtils.isTrue(!!userId, 'Not signed in');
-                    body = await this.signAndSendAsync(req);
+                    body = await this.signAndSendAsync(userId!, req);
                     break;
                 case 'transactionsReceived':
                     ValidationUtils.isTrue(!!userId, 'Not signed in');
@@ -158,15 +158,16 @@ export class HttpHandler implements LambdaHttpHandler {
             executed: false,
             completedLink,
             completedMessage,
+            transactionIds: [],
         } as PoolDrop;
         return this.userSvc.createLinkAndRegister(token, link);
     }
 
-    async signAndSendAsync(req: JsonRpcRequest): Promise<{requestId: string}> {
+    async signAndSendAsync(userId: string, req: JsonRpcRequest): Promise<{requestId: string}> {
         const {linkId, token} = req.data;
         ValidationUtils.isTrue(!!linkId, '"linkId" must be provided');
         ValidationUtils.isTrue(!!token, '"token" must be provided');
-        const requestId = await this.userSvc.signAndSendAsync(linkId, token);
+        const requestId = await this.userSvc.signAndSendAsync(userId, linkId, token);
         return {requestId};
     }
 }
