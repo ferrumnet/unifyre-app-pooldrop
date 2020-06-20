@@ -155,6 +155,9 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
             </PageTopPart>
             <Gap />
             {details}
+            <Gap />
+            <Gap />
+            <Gap />
         </Page>
     );
 }

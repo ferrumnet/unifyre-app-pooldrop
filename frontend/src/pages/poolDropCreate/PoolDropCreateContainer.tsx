@@ -78,6 +78,9 @@ function PoolDropCreateComponent(props: PoolDropCreateProps&PoolDropCreateDispat
             <Row withPadding>
                 <ThemedButton text={intl('create-link')} onClick={() => props.onCreate(history, props)} />
             </Row>
+            <Gap />
+            <Gap />
+            <Gap />
         </Page>
     );
 }

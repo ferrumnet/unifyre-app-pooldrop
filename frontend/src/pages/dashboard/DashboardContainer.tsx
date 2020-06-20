@@ -24,7 +24,7 @@ function DashboardComponent(props: DashboardProps&DashboardDispatch) {
       if (activePoolDrop && !linkId) {
         history.replace(`/claim/${activePoolDrop}`);
       }
-    }, [activePoolDrop, linkId]);
+    }, [activePoolDrop, linkId, history]);
     if (props.initialized) {
         // Render the routes
         return (

@@ -7,10 +7,7 @@ import { formatter } from "./RatesService";
 import Big from 'big.js';
 import { Utils } from "../common/Utils";
 import { UnifyreExtensionKitClient } from 'unifyre-extension-sdk';
-
-const BACKEND = 'http://d3b69637c51d.ngrok.io';
-// const BACKEND = 'http://localhost:8080';
-// const BACKEND = 'https://mkeldwiw63.execute-api.us-east-2.amazonaws.com/default/wyre-backend'; 
+import { POOLDROP_BACKEND } from "../common/IocModule";
 
 export const PoolDropServiceActions = {
     TOKEN_NOT_FOUND_ERROR: 'TOKEN_NOT_FOUND_ERROR',
@@ -177,10 +174,12 @@ export class PoolDropClient implements Injectable {
             }
             this.client.setToken(token);
             const transactionIds = await this.client.getSendTransactionResponse(requestId);
+
             if (transactionIds) {
-                await this.api({
+                const res = await this.api({
                     command: 'transactionsReceived', data: { transactionIds, linkId }, params: []
                 } as JsonRpcRequest) as {requestId: string};
+                ValidationUtils.isTrue(!!res, 'Error updating transaction IDs');
                 return this.getPoolDrop(dispatch, linkId);
             } else {
                 dispatch(addAction(Actions.CLAIM_FAILED, { message:
@@ -212,7 +211,7 @@ export class PoolDropClient implements Injectable {
 
     private async api(req: JsonRpcRequest): Promise<any> {
         try {
-            const res = await fetch(BACKEND, {
+            const res = await fetch(POOLDROP_BACKEND, {
                 method: 'POST',
                 mode: 'cors',
                 body: JSON.stringify(req),

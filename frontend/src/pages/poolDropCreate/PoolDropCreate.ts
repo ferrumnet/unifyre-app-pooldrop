@@ -8,7 +8,6 @@ import { addAction } from "../../common/Actions";
 import { formatter } from "../../services/RatesService";
 import Big from 'big.js';
 import { UserPreferenceService } from "../../services/UserPreferenceService";
-import { act } from "react-dom/test-utils";
 
 const PoolDropCreateActions = {
     TOTAL_AMOUNT_CHANGED: 'TOTAL_AMOUNT_CHANGED',
