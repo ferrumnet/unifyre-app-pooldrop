@@ -2881,6 +2881,7 @@ elliptic@^6.4.0:
 
 "elliptic@git+https://github.com/ferrumnet/elliptic.git":
   version "6.5.1"
+  uid "4c24e23ea90893e4e07a267e732010760d7ad939"
   resolved "git+https://github.com/ferrumnet/elliptic.git#4c24e23ea90893e4e07a267e732010760d7ad939"
   dependencies:
     bn.js "^4.4.0"
@@ -2893,7 +2894,6 @@ elliptic@^6.4.0:
 
 "elliptic@https://github.com/ferrumnet/elliptic.git":
   version "6.5.1"
-  uid "4c24e23ea90893e4e07a267e732010760d7ad939"
   resolved "https://github.com/ferrumnet/elliptic.git#4c24e23ea90893e4e07a267e732010760d7ad939"
   dependencies:
     bn.js "^4.4.0"
@@ -3358,7 +3358,7 @@ fb-watchman@^2.0.0:
 
 "ferrum-crypto@git+https://github.com/ferrumnet/ferrum-crypto.git":
   version "0.0.1"
-  resolved "git+https://github.com/ferrumnet/ferrum-crypto.git#b64137f82fad4b242de7c92ebd7e8967d25ca7ad"
+  resolved "git+https://github.com/ferrumnet/ferrum-crypto.git#88abebd106d005bd2504ad041632b40559ebe27f"
   dependencies:
     bech32 "^1.1.3"
     bs58 "^4.0.1"
@@ -7397,7 +7397,7 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-extension-sdk@git+https://github.com/ferrumnet/unifyre-extension-sdk.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#4a623d010c81babd91e0927f5231b1ff86beae82"
+  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#75c81ecfe2549c17a4986358188c06d87b58a345"
   dependencies:
     cross-fetch "^3.0.4"
     elliptic "git+https://github.com/ferrumnet/elliptic.git"

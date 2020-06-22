@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "../../aws-lambda-helper"
+		},
+		{
+			"path": "../../wallet-address-manager"
 		}
 	],
 	"settings": {
