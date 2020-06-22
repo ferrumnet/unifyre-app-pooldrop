@@ -6,7 +6,7 @@ import { PoolDrop } from "../common/Types";
 import { formatter } from "./RatesService";
 import Big from 'big.js';
 import { Utils } from "../common/Utils";
-import { UnifyreExtensionKitClient } from 'unifyre-extension-sdk';
+import { UnifyreExtensionKitClient, SendMoneyResponse } from 'unifyre-extension-sdk';
 import { POOLDROP_BACKEND } from "../common/IocModule";
 
 export const PoolDropServiceActions = {
@@ -173,7 +173,11 @@ export class PoolDropClient implements Injectable {
                 dispatch(addAction(Actions.CLAIM_FAILED, { message: 'Could not send a sign request.' }));
             }
             this.client.setToken(token);
-            const transactionIds = await this.client.getSendTransactionResponse(requestId);
+            const response = await this.client.getSendTransactionResponse(requestId) as SendMoneyResponse[] | { rejected: boolean, reason: string };
+            if ((response as any).rejected) {
+                throw new Error((response as any).reason || 'Request was rejected');
+            }
+            const transactionIds = (response as SendMoneyResponse[]).map(r => r.transactionId);
 
             if (transactionIds) {
                 const res = await this.api({
