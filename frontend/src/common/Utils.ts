@@ -21,4 +21,21 @@ export class Utils {
         if (android) { return 'android'; };
         return 'desktop';
     }
+
+    static shorten(s: string) {
+        if (s.length <= 25) { return s; }
+        return `${s.substr(0, 10)}...${s.substr(s.length - 10)}`;
+    }
+
+    static linkForAddress(network: string, addr: string) {
+        return  (network === 'RINKEBY') ?
+            `https://rinkeby.etherscan.com/address/${addr}` :
+            `https://etherscan.com/address/${addr}`;
+    }
+
+    static linkForTransaction(network: string, tid: string) {
+        return  (network === 'RINKEBY') ?
+            `https://rinkeby.etherscan.com/tx/${tid}` :
+            `https://etherscan.com/tx/${tid}`;
+    }
 }

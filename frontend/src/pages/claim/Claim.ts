@@ -13,6 +13,7 @@ const BASE_LINK_URL = 'https://u.linkdrop.us/app';
 
 export interface ClaimProps extends ClaimState {
     id: string;
+    network: string;
     linkUrl: string;
     error?: string;
     amount: string;
@@ -20,6 +21,7 @@ export interface ClaimProps extends ClaimState {
     symbol: string;
     alreadyClaimed: boolean;
     filled: boolean;
+    executed: boolean;
     cancelled: boolean;
     message: string;
     redirectUrl?: string;
@@ -28,6 +30,7 @@ export interface ClaimProps extends ClaimState {
     claimedTotal: number;
     address: string;
     addressUrl: string;
+    transacctionIds: string[];
 }
 
 export interface ClaimDispatch {
@@ -47,13 +50,16 @@ const mapStateToProps = (root: RootState) => {
     const alreadyClaimed = pd.claims.find(cl => (cl.userId === userId) || cl.address === address) || false;
     const linkUrl = `${BASE_LINK_URL}/${pd.id}`;
     return {
+        network: pd.network,
         id: pd.id,
         error: root.ui.claim.error,
         amount: formatter.format(pd.participationAmount, false),
         total: formatter.format(pd.totalAmount, false),
         symbol: pd.symbol,
         alreadyClaimed,
-        filled: pd.claims.length >= pd.numberOfParticipants,
+        filled: pd.executed || pd.claims.length >= pd.numberOfParticipants,
+        executed: pd.executed,
+        transacctionIds: pd.transactionIds || [],
         cancelled: pd.cancelled,
         message: pd.completedMessage,
         redirectUrl: pd.completedLink,

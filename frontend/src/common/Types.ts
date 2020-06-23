@@ -21,7 +21,7 @@ export interface PoolDrop {
     claims: PoolDropClaim[];
     cancelled: boolean;
     executed: boolean;
-    transactionId?: string;
+    transactionIds: string[];
     completedMessage?: string;
     completedLink?: string;
 }

@@ -83,49 +83,79 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
                 </Row>
             </>
         );
-    } else if (props.isOwner) {
+    } else if (props.filled && !props.isOwner) {
         details = (
             <>
-                <Row withPadding center>
-                    <ThemedText.H3>{intl('total-amount')}</ThemedText.H3>
-                </Row>
-                <Row withPadding center>
-                    <InputGroupAddon
-                        value={`${props.total} ${props.symbol}`}
-                        disabled={true}
-                    />
-                </Row>
-                <Row withPadding center>
-                    <ThemedText.H3>{intl('claimed')}</ThemedText.H3>
-                </Row>
-                <Row withPadding center>
-                    <InputGroupAddon
-                        value={intl('claimed-out-of', {count: props.claimedCount, total: props.claimedTotal})}
-                        disabled={true}
-                    />
-                </Row>
-                <Row withPadding center>
-                    <ThemedText.H3>{intl('pool-drop-link')}</ThemedText.H3>
-                </Row>
-                <Row withPadding>
-                    <InputGroupAddon value={props.linkUrl} disabled={true}/>
-                </Row>
-                <Row withPadding>
-                    <CopyToClipboard text={props.linkUrl}>
-                        <ThemedButton text={intl('btn-copy-to-clipboard')}
-                            highlight={true}
-                            onClick={() => alert.success(intl('copied'))} />
-                    </CopyToClipboard>
-                </Row>
-                <Gap />
-                <Row withPadding>
-                    <ThemedButton text={intl('btn-sign')} onClick={() => props.onSign(props.id)} />
-                </Row>
                 <Row withPadding centered>
-                    <ThemedLink text={intl('cancel-link')} onClick={() => props.onCancel(props.id)} />
+                    <ThemedText.H3>{intl('link-is-fully-claimed')}</ThemedText.H3>
                 </Row>
             </>
         );
+    } else if (props.isOwner) {
+        if (props.executed) {
+            details = (
+                <>
+                    <Row withPadding center>
+                        <ThemedText.H2>{intl('link-is-executed')}</ThemedText.H2>
+                    </Row>
+                    <Row withPadding center>
+                        <ThemedText.H3>{intl('transaction-ids')}</ThemedText.H3>
+                    </Row>
+                    {
+                        props.transacctionIds.map((tid, idx) => (
+                            <Row withPadding center key={idx}>
+                                <ThemedLink text={Utils.shorten(tid)} onClick={() => {
+                                    window.open(Utils.linkForTransaction(props.network, tid), '_blank')
+                                }} />
+                            </Row>
+                        ))
+                    }
+                </>
+            );
+        } else {
+            details = (
+                <>
+                    <Row withPadding center>
+                        <ThemedText.H3>{intl('total-amount')}</ThemedText.H3>
+                    </Row>
+                    <Row withPadding center>
+                        <InputGroupAddon
+                            value={`${props.total} ${props.symbol}`}
+                            disabled={true}
+                        />
+                    </Row>
+                    <Row withPadding center>
+                        <ThemedText.H3>{intl('claimed')}</ThemedText.H3>
+                    </Row>
+                    <Row withPadding center>
+                        <InputGroupAddon
+                            value={intl('claimed-out-of', {count: props.claimedCount, total: props.claimedTotal})}
+                            disabled={true}
+                        />
+                    </Row>
+                    <Row withPadding center>
+                        <ThemedText.H3>{intl('pool-drop-link')}</ThemedText.H3>
+                    </Row>
+                    <Row withPadding>
+                        <InputGroupAddon value={props.linkUrl} disabled={true}/>
+                    </Row>
+                    <Row withPadding>
+                        <CopyToClipboard text={props.linkUrl}>
+                            <ThemedButton text={intl('btn-copy-to-clipboard')}
+                                highlight={true}
+                                onClick={() => alert.success(intl('copied'))} />
+                        </CopyToClipboard>
+                    </Row>
+                    <Gap />
+                    <Row withPadding>
+                        <ThemedButton text={intl('btn-sign')} onClick={() => props.onSign(props.id)} />
+                    </Row>
+                    <Row withPadding centered>
+                        <ThemedLink text={intl('cancel-link')} onClick={() => props.onCancel(props.id)} />
+                    </Row>
+                </>
+            );
+        }
     }
 
     if (props.error) {

@@ -7,7 +7,7 @@ import { PoolDropClient } from '../services/PoolDropClient';
 import { UnifyreExtensionKitClient, ClientModule } from 'unifyre-extension-sdk';
 
 export const UNIFYRE_BACKEND = 'http://192.168.1.244:9000/api/';
-export const POOLDROP_BACKEND = 'http://d9bceda89dd8.ngrok.io';
+export const POOLDROP_BACKEND = 'http://6f98fbf90ddb.ngrok.io';
 // const POOLDROP_BACKEND = 'http://localhost:8080';
 
 export class IocModule {

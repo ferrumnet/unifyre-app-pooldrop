@@ -109,7 +109,6 @@ export class PoolDropClient implements Injectable {
             dispatch(addAction(CommonActions.WAITING, { source: 'getLink' }));
             const poolDrop = await this.api({
                 command: 'getLink', data: {linkId}, params: [] } as JsonRpcRequest);
-            console.log("GET POOL DROP", poolDrop);
             if (!poolDrop) {
                 dispatch(addAction(Actions.CLAIM_FAILED, { message: 'Link not found' }));
                 return;
@@ -173,11 +172,13 @@ export class PoolDropClient implements Injectable {
                 dispatch(addAction(Actions.CLAIM_FAILED, { message: 'Could not send a sign request.' }));
             }
             this.client.setToken(token);
-            const response = await this.client.getSendTransactionResponse(requestId) as SendMoneyResponse[] | { rejected: boolean, reason: string };
-            if ((response as any).rejected) {
-                throw new Error((response as any).reason || 'Request was rejected');
+            // TODO: Fix the response format in client
+            // {"serverError":null,"data":{"requestId":"659ff5c5-5e6a-407a-835d-d43e8b64aee2","appId":"POOL_DROP","response":[{"transactionId":"0x4d6b570dea6d5940e4dd8ea09f930622593ff19a8b733c0deda0927dd3d7929e"},{"transactionId":"0xab28e8cadb0cd73e8f8788a89065f62cae06f746da44ef6147b900341cca8514"}]}}
+            const response = await this.client.getSendTransactionResponse(requestId) as any;
+            if (response.rejected) {
+                throw new Error(response.reason || 'Request was rejected');
             }
-            const transactionIds = (response as SendMoneyResponse[]).map(r => r.transactionId);
+            const transactionIds = (response.response as SendMoneyResponse[]).map(r => r.transactionId);
 
             if (transactionIds) {
                 const res = await this.api({
