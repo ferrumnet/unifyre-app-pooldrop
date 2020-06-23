@@ -11,7 +11,7 @@ export class SmartContratClient implements Injectable {
     cache: LocalCache;
     constructor(
         private web3Provider: string,
-        private poolDropContract: string,
+        private poolDropContract: { [network: string]: string},
     ) {
         this.cache = new LocalCache();
     }
@@ -32,6 +32,9 @@ export class SmartContratClient implements Injectable {
         ValidationUtils.isTrue(!!from, '"from" is required');
         ValidationUtils.isTrue(!!recepients && !!recepients.length, '"recepients" is required');
         ValidationUtils.isTrue(!!amount, '"amount" is required');
+        const network = currency.split(':')[0];
+        const contract = this.poolDropContract[network];
+        ValidationUtils.isTrue(!!contract, 'No contract address is configured for this network');
         const decimalFactor = 10 ** await this.decimals(token);
         console.log('DECIMAL FACTOR IS ', decimalFactor.toString())
         const amountPerPerson = new Big(amount).times(new Big(decimalFactor));
@@ -41,7 +44,7 @@ export class SmartContratClient implements Injectable {
         console.log('APPROVE: >')
         console.log(approve)
         console.log(approveGas)
-        const [poolDrop, poolDropGas] = await this.transferManyFrom(token, from, recepients, amountPerPerson);
+        const [poolDrop, poolDropGas] = await this.transferManyFrom(network, token, from, recepients, amountPerPerson);
         console.log('POOL_DROP: >')
         console.log(poolDrop)
         console.log(poolDropGas)
@@ -50,15 +53,15 @@ export class SmartContratClient implements Injectable {
         return [
             callRequest(token, currency, from, approve, approveGas.toString(), nonce,
                 `Approve ${fullAmountHuman} ${symbol} to be spent by PoolDrop contract`,),
-            callRequest(this.poolDropContract, currency, from, poolDrop, poolDropGas.toString(), nonce + 1,
+            callRequest(contract, currency, from, poolDrop, poolDropGas.toString(), nonce + 1,
                 `${amount} ${symbol} to be distributed to ${recepients.length} addresses using PoolDrop contract`,),
         ];
     }
 
-    private async transferManyFrom(token: string, from: string, to: string[], amount: Big):
+    private async transferManyFrom(network: string, token: string, from: string, to: string[], amount: Big):
         Promise<[HexString, number]> {
             console.log('transferManyFrom', {token, from, to, amount});
-        const m = this.poolDrop().methods.transferManyFrom(token, from, to, amount.toString());
+        const m = this.poolDrop(network).methods.transferManyFrom(token, from, to, amount.toString());
         const gas = await m.estimateGas();
         return [m.encodeABI(), gas];
     }
@@ -82,9 +85,9 @@ export class SmartContratClient implements Injectable {
         return new web3.eth.Contract(erc20Abi.default, token);
     }
 
-    private poolDrop() {
+    private poolDrop(network: string) {
         const web3 = this.web3();
-        return new web3.eth.Contract(poolDropAbi.abi as any, this.poolDropContract);
+        return new web3.eth.Contract(poolDropAbi.abi as any, this.poolDropContract[network]);
     }
 
     private web3() {

@@ -44,7 +44,11 @@ export class HttpHandler implements LambdaHttpHandler {
                 case 'signInToServer':
                     const {token} = req.data;
                     const [userProfile, session] = await this.uniBack.signInToServer(token);
-                    const activePoolDrops = await this.userSvc.getActiveLinkDrops(userProfile.userId);
+                    const currency = ((userProfile.accountGroups[0] || []).addresses[0] || {}).currency;
+                    ValidationUtils.isTrue(!!currency, 'signed in user has no active wallet');
+                    console.log('Getting active pooldrops for ', userProfile.userId, currency);
+                    const activePoolDrops = await this.userSvc.getActiveLinkDrops(
+                        userProfile.userId, currency);
                     body = {userProfile, activePoolDrops, session};
                     break;
                 case 'createLinkAndRegister':

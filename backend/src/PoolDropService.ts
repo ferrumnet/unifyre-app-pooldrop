@@ -119,11 +119,10 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         if (pd!.transactionIds?.length) {
             transactionIds = transactionIds.filter(tid => pd!.transactionIds.indexOf(tid) < 0);
         }
-        if (!transactionIds.length) {
-            return pd!;
-        }
         pd!.transactionIds = (pd!.transactionIds || []).concat(transactionIds);
         pd!.executed = true;
+        console.log('TXS ARE ', transactionIds)
+        console.log('UPDATING PD', pd)
         return this.update(pd!);
     }
 
@@ -134,10 +133,11 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         return pd.toJSON();
     }
 
-    async getActiveLinkDrops(creatorId: string): Promise<string[]> {
+    async getActiveLinkDrops(creatorId: string, currency: string): Promise<string[]> {
         ValidationUtils.isTrue(!!creatorId, '"creatorId" must be provided');
+        ValidationUtils.isTrue(!!currency, '"currency" must be provided');
         const drops = await this.model!.find({
-            "$and": [ {creatorId}, {cancelled: false}, {executed: false} ]
+            "$and": [ {creatorId}, {cancelled: false}, {executed: false}, { currency } ]
         })
         return drops.map(d => d.id);
     }

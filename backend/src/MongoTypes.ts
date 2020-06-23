@@ -20,6 +20,7 @@ const poolDropSchema: Schema = new Schema<PoolDrop>({
     participationAmount: String,
     participationAmountFormatted: String,
     claims: [claimSchema],
+    transactionIds: [String],
     cancelled: Boolean,
     executed: Boolean,
     completedLink: String,
