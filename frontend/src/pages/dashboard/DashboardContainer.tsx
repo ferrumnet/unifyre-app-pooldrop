@@ -11,6 +11,7 @@ import { intl } from 'unifyre-react-helper';
 import { Utils } from '../../common/Utils';
 import { ClaimContainer } from '../claim/ClaimContainer';
 import { PoolDropCreateContainer } from '../poolDropCreate/PoolDropCreateContainer';
+import { CONFIG } from '../../common/IocModule';
 
 function DashboardComponent(props: DashboardProps&DashboardDispatch) {
     const {onLoad} = props;
@@ -25,10 +26,12 @@ function DashboardComponent(props: DashboardProps&DashboardDispatch) {
         history.replace(`/claim/${activePoolDrop}`);
       }
     }, [activePoolDrop, linkId, history]);
+    const testAlert = CONFIG.isProd ? undefined : (<><Row withPadding><ThemedText.H1>TEST MODE</ThemedText.H1></Row></>)
     if (props.initialized) {
         // Render the routes
         return (
             <>
+              {testAlert}
               <Switch>
                 <Route path='/claim/:linkId'>
                   <ClaimContainer />
@@ -58,6 +61,7 @@ function DashboardComponent(props: DashboardProps&DashboardDispatch) {
 
     return (
         <Page>
+            {testAlert}
             <Gap />
             <Gap />
             <Gap />

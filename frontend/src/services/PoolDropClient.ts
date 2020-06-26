@@ -7,7 +7,7 @@ import { formatter } from "./RatesService";
 import Big from 'big.js';
 import { Utils } from "../common/Utils";
 import { UnifyreExtensionKitClient, SendMoneyResponse } from 'unifyre-extension-sdk';
-import { POOLDROP_BACKEND } from "../common/IocModule";
+import { CONFIG } from "../common/IocModule";
 
 export const PoolDropServiceActions = {
     TOKEN_NOT_FOUND_ERROR: 'TOKEN_NOT_FOUND_ERROR',
@@ -64,7 +64,7 @@ export class PoolDropClient implements Injectable {
         symbol: string,
         totalAmount: string,
         numberOfParticipants: number,
-        completedMessge?: string,
+        completedMessage?: string,
         completedLink?: string,
     ): Promise<PoolDrop|undefined> {
         try {
@@ -87,7 +87,7 @@ export class PoolDropClient implements Injectable {
                     numberOfParticipants,
                     participationAmount,
                     participationAmountFormatted,
-                    completedMessge,
+                    completedMessage,
                     completedLink,
                 }, params: [] } as JsonRpcRequest);
             if (!poolDrop) {
@@ -216,7 +216,7 @@ export class PoolDropClient implements Injectable {
 
     private async api(req: JsonRpcRequest): Promise<any> {
         try {
-            const res = await fetch(POOLDROP_BACKEND, {
+            const res = await fetch(CONFIG.poolDropBackend, {
                 method: 'POST',
                 mode: 'cors',
                 body: JSON.stringify(req),

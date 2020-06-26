@@ -29,13 +29,13 @@ export class Utils {
 
     static linkForAddress(network: string, addr: string) {
         return  (network === 'RINKEBY') ?
-            `https://rinkeby.etherscan.com/address/${addr}` :
-            `https://etherscan.com/address/${addr}`;
+            `https://rinkeby.etherscan.io/address/${addr}` :
+            `https://etherscan.io/address/${addr}`;
     }
 
     static linkForTransaction(network: string, tid: string) {
         return  (network === 'RINKEBY') ?
-            `https://rinkeby.etherscan.com/tx/${tid}` :
-            `https://etherscan.com/tx/${tid}`;
+            `https://rinkeby.etherscan.io/tx/${tid}` :
+            `https://etherscan.io/tx/${tid}`;
     }
 }
