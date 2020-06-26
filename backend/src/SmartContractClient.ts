@@ -1,8 +1,9 @@
-import { Injectable, HexString, LocalCache, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, HexString, LocalCache, ValidationUtils, Network } from "ferrum-plumbing";
 // @ts-ignore
 import * as erc20Abi from './resources/IERC20.json'
 // @ts-ignore
 import * as poolDropAbi from './resources/PoolDrop.json';
+// import { Eth } from 'web3-eth';
 import Web3 from 'web3';
 import Big from 'big.js';
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
@@ -10,7 +11,8 @@ import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 export class SmartContratClient implements Injectable {
     cache: LocalCache;
     constructor(
-        private web3Provider: string,
+        private web3ProviderEthereum: string,
+        private web3ProviderRinkeby: string,
         private poolDropContract: { [network: string]: string},
     ) {
         this.cache = new LocalCache();
@@ -35,20 +37,12 @@ export class SmartContratClient implements Injectable {
         const network = currency.split(':')[0];
         const contract = this.poolDropContract[network];
         ValidationUtils.isTrue(!!contract, 'No contract address is configured for this network');
-        const decimalFactor = 10 ** await this.decimals(token);
-        console.log('DECIMAL FACTOR IS ', decimalFactor.toString())
+        const decimalFactor = 10 ** await this.decimals(network, token);
         const amountPerPerson = new Big(amount).times(new Big(decimalFactor));
         const fullAmount = amountPerPerson.mul(new Big(recepients.length));
-        console.log('AMOUNTS: FULL ', fullAmount.toString(), amountPerPerson.toString())
-        const [approve, approveGas] = await this.approve(token, fullAmount);
-        console.log('APPROVE: >')
-        console.log(approve)
-        console.log(approveGas)
+        const [approve, approveGas] = await this.approve(network, token, from, fullAmount);
         const [poolDrop, poolDropGas] = await this.transferManyFrom(network, token, from, recepients, amountPerPerson);
-        console.log('POOL_DROP: >')
-        console.log(poolDrop)
-        console.log(poolDropGas)
-        const nonce = await this.web3().eth.getTransactionCount(from, 'pending');
+        const nonce = await this.web3(network).getTransactionCount(from, 'pending');
         const fullAmountHuman = fullAmount.div(decimalFactor).toString();
         return [
             callRequest(token, currency, from, approve, approveGas.toString(), nonce,
@@ -60,45 +54,48 @@ export class SmartContratClient implements Injectable {
 
     private async transferManyFrom(network: string, token: string, from: string, to: string[], amount: Big):
         Promise<[HexString, number]> {
-            console.log('transferManyFrom', {token, from, to, amount});
+        console.log('transferManyFrom', {token, from, to, amount: amount.toString()});
         const m = this.poolDrop(network).methods.transferManyFrom(token, from, to, amount.toString());
-        const gas = await m.estimateGas();
+        const gas = 35000 + to.length * 60000;
+        // await m.estimateGas({from}); This will fail unfortunately because tx will revert!
+        console.log('TRANSFER MANY', gas);
         return [m.encodeABI(), gas];
     }
 
-    private async approve(token: string, amount: Big): Promise<[HexString, number]> {
-        console.log('about to approve: ', { token, to: this.poolDropContract, amount: amount.toString(), })
-        const m = this.erc20(token).methods.approve(this.poolDropContract, amount.toString());
-        const gas = await m.estimateGas();
+    private async approve(network: string, token: string, from: string, amount: Big): Promise<[HexString, number]> {
+        console.log('about to approve: ', { token, to: this.poolDropContract[network], amount: amount.toString(), })
+        const m = this.erc20(network, token).methods.approve(this.poolDropContract[network], amount.toString());
+        const gas = await m.estimateGas({from});
+        console.log('APPROVE', gas);
         return [m.encodeABI(), gas];
     }
 
-    private async decimals(token: string): Promise<number> {
+    private async decimals(network: string, token: string): Promise<number> {
         return this.cache.getAsync('DECIMALS_' + token, async () => {
-            const tokenCon = this.erc20(token);
+            const tokenCon = this.erc20(network, token);
             return await tokenCon.methods.decimals().call();
         });
     }
 
-    private erc20(token: string) {
-        const web3 = this.web3();
-        return new web3.eth.Contract(erc20Abi.default, token);
+    private erc20(network: string, token: string) {
+        const web3 = this.web3(network);
+        return new web3.Contract(erc20Abi.default, token);
     }
 
     private poolDrop(network: string) {
-        const web3 = this.web3();
-        return new web3.eth.Contract(poolDropAbi.abi as any, this.poolDropContract[network]);
+        const web3 = this.web3(network);
+        return new web3.Contract(poolDropAbi.abi as any, this.poolDropContract[network]);
     }
 
-    private web3() {
-        return new Web3(new Web3.providers.HttpProvider(this.web3Provider));
+    private web3(network: string) {
+        return new Web3(new Web3.providers.HttpProvider(
+            network === 'ETHEREUM' ? this.web3ProviderEthereum : this.web3ProviderRinkeby)).eth;
     }
 }
 
 function callRequest(contract: string, currency: string, from: string, data: string, gasLimit: string, nonce: number,
     description: string): CustomTransactionCallRequest {
-        // @ts-ignore
-    return { network: 'ETHEREUM',
+    return {
         currency,
         from,
         amount: '0',

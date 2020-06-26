@@ -15,16 +15,14 @@ import { SmartContratClient } from './SmartContractClient';
 const global = { init: false };
 const POOLDROP_APP_ID = 'POOL_DROP';
 
-const IS_DEV = true;
-
-const UNIFYRE_BACKED_PROD = 'https://ube.ferrumnetwork.io/api/';
-const UNIFYRE_BACKED_DEV = 'http://192.168.1.244:9000/api/';
-const UNIFYRE_BACKED = IS_DEV ? UNIFYRE_BACKED_DEV : UNIFYRE_BACKED_PROD;
-
-// DEV 
+// DEV - only use for local. Remote dev is considered prod
+const IS_DEV = !!process.env.IS_DEV;
 const POOL_DROP_SMART_CONTRACT_ADDRESS_DEV = '0x32d7c376594bb287a252ffba01e70ad56174702a';
 
-const POOL_DROP_SMART_CONTRACT_ADDRESS_PROD = { 'ETHEREUM': '', 'RINKEBY': '0xcc33f44fff89c369d9e770186a018243522fe220' };
+const POOL_DROP_SMART_CONTRACT_ADDRESS_PROD = {
+    'ETHEREUM': '', // TODO: TBD
+    'RINKEBY': '0xcc33f44fff89c369d9e770186a018243522fe220'
+};
 const POOL_DROP_ADDRESS = IS_DEV ?
     { 'ETHEREUM': POOL_DROP_SMART_CONTRACT_ADDRESS_DEV } : POOL_DROP_SMART_CONTRACT_ADDRESS_PROD;
 
@@ -78,16 +76,19 @@ export class PoolDropModule implements Module {
         // TODO: CONFIGURE THE SIGNING PRIVATE KEY AS KMS ENCRYPTED
 
         const poolDropConfig: MongooseConfig&{
-            authRandomKey: string, signingKey: string, web3Provider: string} = {
+            authRandomKey: string, signingKey: string,
+                web3ProviderRinkeby: string, web3ProviderEthereum: string, backend: string} = {
             connectionString: getEnv('MONGOOSE_CONNECTION_STRING'),
             authRandomKey: getEnv('RANDOM_SECRET'),
             signingKey: getEnv('REQUEST_SIGNING_KEY'),
-            web3Provider: getEnv('WEB3_PROVIDER'),
+            web3ProviderEthereum: getEnv('WEB3_PROVIDER_ETHEREUM'),
+            web3ProviderRinkeby: getEnv('WEB3_PROVIDER_RINKEBY'),
+            backend: getEnv('UNIFYRE_BACKEND'),
         } as any;
 
         // This will register sdk modules. Good for client-side, for server-side we also need the next
         // step
-        await container.registerModule(new ClientModule(UNIFYRE_BACKED, POOLDROP_APP_ID));
+        await container.registerModule(new ClientModule(poolDropConfig.backend, POOLDROP_APP_ID));
         
         // Note: we register UnifyreBackendProxyModule for the backend applications
         // this will ensure that the ExtensionClient does not cache the token between different
@@ -97,7 +98,10 @@ export class PoolDropModule implements Module {
                 poolDropConfig.signingKey,));
 
         container.registerSingleton(SmartContratClient,
-            () => new SmartContratClient(poolDropConfig.web3Provider, POOL_DROP_ADDRESS));
+            () => new SmartContratClient(
+                poolDropConfig.web3ProviderEthereum,
+                poolDropConfig.web3ProviderRinkeby,
+                POOL_DROP_ADDRESS));
         container.register('JsonStorage', () => new Object());
         container.registerSingleton(PoolDropService,
                 c => new PoolDropService(

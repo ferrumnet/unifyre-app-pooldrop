@@ -95,6 +95,7 @@ export class HttpHandler implements LambdaHttpHandler {
                 statusCode: 200,
             } as LambdaHttpResponse;
         } catch (e) {
+            console.error('Error while calling API', req, e);
             return {
                 body: JSON.stringify({error: e.toString()}),
                 headers: {
@@ -136,9 +137,9 @@ export class HttpHandler implements LambdaHttpHandler {
     }
 
     async createLinkAndRegister(req: JsonRpcRequest): Promise<PoolDrop> {
-        const {token, network, currency, symbol, totalAmount, numberOfParticipants,
+        const {token, totalAmount, numberOfParticipants,
             participationAmountFormatted, completedMessage, completedLink } = req.data;
-        validateFieldsRequired({token, network, currency, symbol, totalAmount, numberOfParticipants,
+        validateFieldsRequired({token, totalAmount, numberOfParticipants,
             participationAmountFormatted});
         ValidationUtils.isTrue(Big(totalAmount).gt(Big(0)), "Amount must be greater than zero");
         ValidationUtils.isTrue(numberOfParticipants > 0, 'Number of participants must be greater than zero')
@@ -150,9 +151,9 @@ export class HttpHandler implements LambdaHttpHandler {
             createdAt: 0,
             displayName: '',
             id: '',
-            network,
-            currency,
-            symbol,
+            network: '' as any,
+            currency: '',
+            symbol: '',
             totalAmount,
             numberOfParticipants,
             participationAmount,

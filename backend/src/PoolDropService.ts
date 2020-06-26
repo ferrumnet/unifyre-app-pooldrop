@@ -64,6 +64,13 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         await client.signInWithToken(uniToken);
         const userProfile = client.getUserProfile();
         ValidationUtils.isTrue(!!userProfile, 'Error connecting to unifyre');
+        link.creatorId = userProfile.userId;
+        link.creatorAddress = (userProfile.accountGroups[0]?.addresses || [])[0]?.address;
+        link.network = (userProfile.accountGroups[0]?.addresses || [])[0]?.network;
+        link.currency = (userProfile.accountGroups[0]?.addresses || [])[0]?.currency;
+        link.symbol = (userProfile.accountGroups[0]?.addresses || [])[0]?.symbol;
+        link.createdAt = Date.now();
+        link.displayName = userProfile.displayName;
         const message = `${userProfile.displayName} is distributing ${link.participationAmountFormatted} ${link.symbol} to ${link.numberOfParticipants} lucky individuals using the Unifyre Wallet`;
         const linkId = await client.createLinkObject({
             imageTopTitle: 'POOL DROP',
@@ -74,10 +81,6 @@ export class PoolDropService extends MongooseConnection implements Injectable {
             currency: link.currency,
         } as AppLinkRequest<{}>);
         link.id = linkId;
-        link.creatorId = userProfile.userId;
-        link.creatorAddress = (userProfile.accountGroups[0]?.addresses || [])[0]?.address,
-        link.createdAt = Date.now();
-        link.displayName = userProfile.displayName;
         link.version = 0;
         link.claims = [];
         await this.save(link);
@@ -109,7 +112,7 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         );
         console.log('About to send transactions to server', txs);
 
-        return await client.sendTransactionAsync('ETHEREUM', txs);
+        return await client.sendTransactionAsync(poolDrop!.network, txs);
     }
 
     async addTransactionIds(linkId: string, transactionIds: string[]): Promise<PoolDrop> {
