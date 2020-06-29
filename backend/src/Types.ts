@@ -1,4 +1,5 @@
-import { Network } from "ferrum-plumbing";
+import { Network, EncryptedData } from "ferrum-plumbing";
+import { MongooseConfig } from "aws-lambda-helper";
 
 export interface PoolDropClaim {
     address: string;
@@ -25,4 +26,16 @@ export interface PoolDrop {
     transactionIds: string[];
     completedMessage?: string;
     completedLink?: string;
+}
+
+export interface PoolDropConfig {
+    database: MongooseConfig;
+    region: string;
+    authRandomKey: string;
+    signingKeyHex?: string;
+    signingKey?: EncryptedData;
+    web3ProviderRinkeby: string;
+    web3ProviderEthereum: string;
+    backend: string;
+    cmkKeyArn: string;
 }
