@@ -40,4 +40,5 @@ link-is-fully-claimed = This pool is full, better luck next time!
 link-is-cancelled = Link is cancelled by creator
 link-is-executed = Link is fully executed
 transaction-ids = Following transaction IDs were generated
+balance = Current balance
 `;

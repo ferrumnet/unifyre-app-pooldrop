@@ -16,7 +16,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 
 function ClaimComponent(props: ClaimProps&ClaimDispatch) {
     const theme = useContext(ThemeContext);
-    const {linkId} = useParams();
+    const {linkId} = useParams() as any;
     const linkIdQuery = Utils.getQueryparam('linkId');
     const {onClaim, onLoad, id} = props;
     const alert = useAlert();
@@ -148,7 +148,11 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
                     </Row>
                     <Gap />
                     <Row withPadding>
-                        <ThemedButton text={intl('btn-sign')} onClick={() => props.onSign(props.id)} />
+                        <ThemedButton
+                            disabled={!props.claimedCount}
+                            text={intl('btn-sign')}
+                            onClick={() => props.onSign(props.id)}
+                        />
                     </Row>
                     <Row withPadding centered>
                         <ThemedLink text={intl('cancel-link')} onClick={() => props.onCancel(props.id)} />

@@ -24,6 +24,7 @@ export interface PoolDropCreateProps extends PoolDropCreateState {
     currency: string;
     symbol: string;
     participationAmount: string;
+    balance: string;
 }
 
 export interface PoolDropCreateDispatch {
@@ -58,6 +59,7 @@ const mapStateToProps = (root: RootState) => {
         completedMessage: state.completedMessage === undefined ?
             preferences.lastSuccessMessage : state.completedMessage,
         participationAmount,
+        balance: address.balance,
     } as PoolDropCreateProps;
 }
 
@@ -70,6 +72,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
             ValidationUtils.isTrue(numberOfParticipants <= 100, 'Maximum number of participants is 100');
             ValidationUtils.isTrue(numberOfParticipants === Math.round(numberOfParticipants), 
                 'Number of participands must be an integer');
+            ValidationUtils.isTrue(Big(props.totalAmount).gte(Big(props.balance)), 'Not enough balance');
             const pref = inject<UserPreferenceService>(UserPreferenceService);
             pref.update(dispatch, {
                 lastRedirectLink: props.completedLink,
