@@ -26,16 +26,16 @@ const REMOTE_DEV_CONF = {
 } as Config;
 
 const PROD_CONF = {
-    unifyreBackend: 'https://tbe.ferrumnetwork.io/api/',
-    poolDropBackend: 'https://sczl7wvxvf.execute-api.us-east-2.amazonaws.com/default/test-unifyre-extension-pool-drop-backend',
+    unifyreBackend: 'https://ube.ferrumnetwork.io/api/',
+    poolDropBackend: 'https://e1j2b5gei9.execute-api.us-east-2.amazonaws.com/default/prod-unifyre-extension-pool-drop-backend',
     isProd: true,
 } as Config;
 
 const DEV_USES_LOCAL: boolean = true;
 const NODE_ENV = process.env.NODE_ENV;
 
-export const CONFIG = NODE_ENV === 'production' ? PROD_CONF :
-    (DEV_USES_LOCAL ? LOCAL_DEV_CONF : REMOTE_DEV_CONF);
+export const CONFIG = PROD_CONF; // NODE_ENV === 'production' ? PROD_CONF :
+    // (DEV_USES_LOCAL ? LOCAL_DEV_CONF : REMOTE_DEV_CONF);
 
 export class IocModule {
     private static _container: Container;
