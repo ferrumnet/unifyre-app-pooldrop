@@ -38,8 +38,10 @@ export class SmartContratClient implements Injectable {
         const contract = this.poolDropContract[network];
         ValidationUtils.isTrue(!!contract, 'No contract address is configured for this network');
         const decimalFactor = 10 ** await this.decimals(network, token);
-        const amountPerPerson = new Big(amount).times(new Big(decimalFactor));
-        const fullAmount = amountPerPerson.mul(new Big(recepients.length));
+        // Round down the per person amount, but round up the full to prevent the situation
+        // that not enough amount is approved.
+        const amountPerPerson = new Big(amount).times(new Big(decimalFactor)).round(0, 0);
+        const fullAmount = amountPerPerson.mul(new Big(recepients.length)).round(0, 3);
         const [approve, approveGas] = await this.approve(network, token, from, fullAmount);
         const [poolDrop, poolDropGas] = await this.transferManyFrom(network, token, from, recepients, amountPerPerson);
         const nonce = await this.web3(network).getTransactionCount(from, 'pending');

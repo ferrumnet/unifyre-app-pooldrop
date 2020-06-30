@@ -1,6 +1,6 @@
 import { MongooseConnection } from "aws-lambda-helper";
 import { Connection, Model, Document } from "mongoose";
-import { Injectable, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, ValidationUtils, RetryableError, retry } from "ferrum-plumbing";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 import { PoolDrop, PoolDropClaim } from "./Types";
 import { PoolDropModel } from "./MongoTypes";
@@ -117,16 +117,18 @@ export class PoolDropService extends MongooseConnection implements Injectable {
 
     async addTransactionIds(linkId: string, transactionIds: string[]): Promise<PoolDrop> {
         ValidationUtils.isTrue(!!linkId, '"linkId" must be provided');
-        const pd = await this.get(linkId);
-        ValidationUtils.isTrue(!!pd, 'Pool drop not found');
-        if (pd!.transactionIds?.length) {
-            transactionIds = transactionIds.filter(tid => pd!.transactionIds.indexOf(tid) < 0);
-        }
-        pd!.transactionIds = (pd!.transactionIds || []).concat(transactionIds);
-        pd!.executed = true;
-        console.log('TXS ARE ', transactionIds)
-        console.log('UPDATING PD', pd)
-        return this.update(pd!);
+        return await retry(async () => {
+            const pd = await this.get(linkId);
+            ValidationUtils.isTrue(!!pd, 'Pool drop not found');
+            if (pd!.transactionIds?.length) {
+                transactionIds = transactionIds.filter(tid => pd!.transactionIds.indexOf(tid) < 0);
+            }
+            pd!.transactionIds = (pd!.transactionIds || []).concat(transactionIds);
+            pd!.executed = true;
+            console.log('TXS ARE ', transactionIds)
+            console.log('UPDATING PD', pd)
+            return this.update(pd!);
+        });
     }
 
     async get(id: string): Promise<PoolDrop|undefined> {
@@ -157,7 +159,9 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         const id = link.id;
         const updated = await this.model!.findOneAndUpdate({ "$and": [{ id }, { version }] },
             { '$set': { ...newPd } }).exec();
-        ValidationUtils.isTrue(!!updated, 'Error updating PoolDrop. Update returned empty. Retry');
+        if (!updated) {
+            throw new RetryableError('Error updating PoolDrop. Update returned empty. Retry');
+        }
         return updated?.toJSON();
     }
 
