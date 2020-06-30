@@ -18,13 +18,13 @@ function PoolDropCreateComponent(props: PoolDropCreateProps&PoolDropCreateDispat
     ) : undefined;
     const balance = (
         <>
-            <Gap />
-            <Row withPadding centered>
+            <Row withPadding>
                 <ThemedText.H3>{intl('balance')}</ThemedText.H3>
             </Row>
-            <Row withPadding centered>
-                <ThemedText.H2>{formatter.format(props.balance, false)}</ThemedText.H2>
+            <Row withPadding>
+                <ThemedText.H2>{formatter.format(props.balance, false)} {props.symbol}</ThemedText.H2>
             </Row>
+            <Gap />
         </>
     );
     return (

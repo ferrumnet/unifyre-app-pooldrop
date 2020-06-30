@@ -55,6 +55,10 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
                     <ThemedText.P>{props.message}</ThemedText.P>
                 </Row>
                 {redirect}
+                <Gap />
+                <Row withPadding center>
+                    <ThemedText.P>{intl('claimed-details')}</ThemedText.P>
+                </Row>
             </>
         );
     } else if (props.filled) {

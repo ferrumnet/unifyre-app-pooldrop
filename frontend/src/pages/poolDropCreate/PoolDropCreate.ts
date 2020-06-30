@@ -72,7 +72,9 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
             ValidationUtils.isTrue(numberOfParticipants <= 100, 'Maximum number of participants is 100');
             ValidationUtils.isTrue(numberOfParticipants === Math.round(numberOfParticipants), 
                 'Number of participands must be an integer');
-            ValidationUtils.isTrue(Big(props.totalAmount).gte(Big(props.balance)), 'Not enough balance');
+            ValidationUtils.isTrue(Big(props.totalAmount).lte(Big(props.balance)), 'Not enough balance');
+            ValidationUtils.isTrue(!props.completedLink || props.completedLink.startsWith('http'),
+                'Link must start with https://');
             const pref = inject<UserPreferenceService>(UserPreferenceService);
             pref.update(dispatch, {
                 lastRedirectLink: props.completedLink,

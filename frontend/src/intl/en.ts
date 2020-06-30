@@ -25,6 +25,7 @@ cancel-dlg-no = No
 your-address = Your address
 sign-dlg-title = Sign transaction in Unifyre
 sign-dlg-details = You will be asked to sign two transactions in your Unifyre wallet. If you did not receive a notification, make sure to enable notifications and try again.
+claimed-details = Please wait for the creator to finalize and execute the pool drop. Once creator executes the pooldrop you will receive the claimed amount. Creator can also cancel this pooldrop if they deem necessary.
 
 ## Pool Drop Create
 create-pool-drop = Create pool drop
