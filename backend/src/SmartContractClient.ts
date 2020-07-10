@@ -45,19 +45,19 @@ export class SmartContratClient implements Injectable {
         const [approve, approveGas] = await this.approve(network, token, from, fullAmount);
         const [poolDrop, poolDropGas] = await this.transferManyFrom(network, token, from, recepients, amountPerPerson);
         const nonce = await this.web3(network).getTransactionCount(from, 'pending');
-        const fullAmountHuman = fullAmount.div(decimalFactor).toString();
+        const fullAmountHuman = fullAmount.div(decimalFactor).toFixed();
         return [
-            callRequest(token, currency, from, approve, approveGas.toString(), nonce,
+            callRequest(token, currency, from, approve, approveGas.toFixed(), nonce,
                 `Approve ${fullAmountHuman} ${symbol} to be spent by PoolDrop contract`,),
-            callRequest(contract, currency, from, poolDrop, poolDropGas.toString(), nonce + 1,
+            callRequest(contract, currency, from, poolDrop, poolDropGas.toFixed(), nonce + 1,
                 `${amount} ${symbol} to be distributed to ${recepients.length} addresses using PoolDrop contract`,),
         ];
     }
 
     private async transferManyFrom(network: string, token: string, from: string, to: string[], amount: Big):
         Promise<[HexString, number]> {
-        console.log('transferManyFrom', {token, from, to, amount: amount.toString()});
-        const m = this.poolDrop(network).methods.transferManyFrom(token, from, to, amount.toString());
+        console.log('transferManyFrom', {token, from, to, amount: amount.toFixed()});
+        const m = this.poolDrop(network).methods.transferManyFrom(token, from, to, amount.toFixed());
         const gas = 35000 + to.length * 60000;
         // await m.estimateGas({from}); This will fail unfortunately because tx will revert!
         console.log('TRANSFER MANY', gas);
@@ -65,8 +65,8 @@ export class SmartContratClient implements Injectable {
     }
 
     private async approve(network: string, token: string, from: string, amount: Big): Promise<[HexString, number]> {
-        console.log('about to approve: ', { token, to: this.poolDropContract[network], amount: amount.toString(), })
-        const m = this.erc20(network, token).methods.approve(this.poolDropContract[network], amount.toString());
+        console.log('about to approve: ', { token, to: this.poolDropContract[network], amount: amount.toFixed(), })
+        const m = this.erc20(network, token).methods.approve(this.poolDropContract[network], amount.toFixed());
         const gas = await m.estimateGas({from});
         console.log('APPROVE', gas);
         return [m.encodeABI(), gas];

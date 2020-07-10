@@ -26,6 +26,9 @@
 		},
 		{
 			"path": "../../wallet-address-manager"
+		},
+		{
+			"path": "../../ferrum-plumbing"
 		}
 	],
 	"settings": {
