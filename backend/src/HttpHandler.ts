@@ -138,7 +138,7 @@ export class HttpHandler implements LambdaHttpHandler {
 
     async createLinkAndRegister(req: JsonRpcRequest): Promise<PoolDrop> {
         const {token, totalAmount, numberOfParticipants,
-            participationAmountFormatted, completedMessage, completedLink } = req.data;
+            participationAmountFormatted, completedMessage, completedLink,restrictedParticipants } = req.data;
         validateFieldsRequired({token, totalAmount, numberOfParticipants,
             participationAmountFormatted});
         ValidationUtils.isTrue(Big(totalAmount).gt(Big(0)), "Amount must be greater than zero");
@@ -164,6 +164,7 @@ export class HttpHandler implements LambdaHttpHandler {
             completedLink,
             completedMessage,
             transactionIds: [],
+            restrictedParticipants
         } as PoolDrop;
         return this.userSvc.createLinkAndRegister(token, link);
     }

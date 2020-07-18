@@ -1,7 +1,7 @@
 import React from 'react';
 import { PoolDropCreateProps, PoolDropCreateDispatch, PoolDropCreate } from './PoolDropCreate';
 import {
-    Page, PageTopPart, Row, Gap, ThemedText, ThemedButton, InputGroupAddon, ErrorMessage,
+    Page, PageTopPart, Row, Gap, ThemedText, ThemedButton, InputGroupAddon, ErrorMessage,Checkbox
     // @ts-ignore
 } from 'unifyre-web-components';
 import { intl } from 'unifyre-react-helper';
@@ -87,6 +87,18 @@ function PoolDropCreateComponent(props: PoolDropCreateProps&PoolDropCreateDispat
                     onChange={props.onCompletedLinkChanged}
                 />
             </Row>
+            <Checkbox leftLabel={'WhiteList Emails (Restrict Participants)'} onChange={props.onWhiteListChecked}/>
+            {
+                props.showWhiteListedEmails &&
+                <>
+                    <Row withPadding>
+                        <ThemedText.SMALL>{'Participant Emails (Comma seperated)'}</ThemedText.SMALL>
+                    </Row>
+                    <Row withPadding>
+                        <InputGroupAddon value={props.whiteListedEmails} onChange={props.onWhiteListedEmailChanged}/>
+                    </Row>
+                </>
+            }
             {error}
             <Row withPadding>
                 <ThemedButton text={intl('create-link')} onClick={() => props.onCreate(history, props)} />

@@ -4,6 +4,7 @@ import { PoolDrop, PoolDropClaim } from "./Types";
 
 const claimSchema: Schema = new Schema<PoolDropClaim>({
     address: String,
+    email: String,
     userId: String,
 });
 
@@ -25,6 +26,7 @@ const poolDropSchema: Schema = new Schema<PoolDrop>({
     executed: Boolean,
     completedLink: String,
     completedMessage: String,
+    restrictedParticipants: String
 });
 
 export const PoolDropModel = (c: Connection) => c.model<PoolDrop&Document>('poolDrops', poolDropSchema);

@@ -4,6 +4,7 @@ import { MongooseConfig } from "aws-lambda-helper";
 export interface PoolDropClaim {
     address: string;
     userId: string;
+    email?: string;
 }
 
 export interface PoolDrop {
@@ -26,6 +27,7 @@ export interface PoolDrop {
     transactionIds: string[];
     completedMessage?: string;
     completedLink?: string;
+    restrictedParticipants?: string
 }
 
 export interface PoolDropConfig {
