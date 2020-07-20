@@ -7,6 +7,7 @@ import { History } from 'history';
 import { addAction } from "../../common/Actions";
 import { formatter } from "../../services/RatesService";
 import Big from 'big.js';
+import {Utils} from './../../common/Utils';
 import { UserPreferenceService } from "../../services/UserPreferenceService";
 
 const PoolDropCreateActions = {
@@ -15,6 +16,8 @@ const PoolDropCreateActions = {
     COMPLETED_MESSAGE_CHANGED: 'COMPLETED_MESSAGE_CHANGED',
     COMPLETED_LINK_CHANGED : 'COMPLETED_LINK_CHANGED',
     CREATE_FAILED: 'CREATE_FAILED',
+    SHOW_WHITELISTED_EMAILS: 'SHOW_WHITELISTED_EMAILS',
+    ONCHANGE_WHITE_LISTED_EMAILS: 'ONCHANGE_WHITE_LISTED_EMAILS'
 };
 
 const Actions = PoolDropCreateActions;
@@ -32,6 +35,8 @@ export interface PoolDropCreateDispatch {
     onCompletedMessageChanged: (value: string) => void;
     onNumberOfParticipantsChanged: (value: string) => void;
     onTotalAmountChanged: (value: string) => void;
+    onWhiteListChecked: () => void;
+    onWhiteListedEmailChanged: (value:string) => void,
     onCreate: (history: History, props: PoolDropCreateProps) => void;
 }
 
@@ -68,6 +73,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
         try {
             const client = inject<PoolDropClient>(PoolDropClient);
             const numberOfParticipants = Number(props.numberOfParticipants)
+            const validatedEmails =  Utils.validateMultipleEmails(props.whiteListedEmails);
             ValidationUtils.isTrue(Big(props.totalAmount || '0').gt(Big(0)), 'Total amount must be positive');
             ValidationUtils.isTrue(numberOfParticipants <= 100, 'Maximum number of participants is 100');
             ValidationUtils.isTrue(numberOfParticipants === Math.round(numberOfParticipants), 
@@ -75,6 +81,10 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
             ValidationUtils.isTrue(Big(props.totalAmount).lte(Big(props.balance)), 'Not enough balance');
             ValidationUtils.isTrue(!props.completedLink || props.completedLink.startsWith('http'),
                 'Link must start with https://');
+            if(props.showWhiteListedEmails){
+                ValidationUtils.isTrue(!validatedEmails.invalidEmails[0], `Invalid Email(s) Entered : ${validatedEmails.invalidEmails.toString()}`);
+                ValidationUtils.isTrue(validatedEmails.validEmails.length >= Math.round(numberOfParticipants), `Valid number of Participants cannot be less than Number of Allowed participants`);
+            }
             const pref = inject<UserPreferenceService>(UserPreferenceService);
             pref.update(dispatch, {
                 lastRedirectLink: props.completedLink,
@@ -88,6 +98,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
                 numberOfParticipants,
                 props.completedMessage,
                 props.completedLink,
+                props.whiteListedEmails
                 );
             if (pd) {
                 history.replace(`/claim/${pd.id}`);
@@ -97,15 +108,19 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
             dispatch(addAction(Actions.CREATE_FAILED, {message: e.message}));
         }
     },
+    onWhiteListedEmailChanged: value => dispatch(addAction(Actions.ONCHANGE_WHITE_LISTED_EMAILS, {value})),
     onCompletedLinkChanged: value => dispatch(addAction(Actions.COMPLETED_LINK_CHANGED, {value})),
     onCompletedMessageChanged: value => dispatch(addAction(Actions.COMPLETED_MESSAGE_CHANGED, {value})),
     onNumberOfParticipantsChanged: value => dispatch(addAction(Actions.NO_OF_PARTICIPANTS_CHANGED, {value})),
     onTotalAmountChanged: value => dispatch(addAction(Actions.TOTAL_AMOUNT_CHANGED, {value})),
+    onWhiteListChecked: () => dispatch(addAction(Actions.SHOW_WHITELISTED_EMAILS, {})),
 } as PoolDropCreateDispatch);
 
 const defaultPoolDropState = {
     numberOfParticipants: '1',
     totalAmount: '',
+    showWhiteListedEmails: false,
+    whiteListedEmails: ''
 } as PoolDropCreateState;
 
 function reduce(state: PoolDropCreateState = defaultPoolDropState, action: AnyAction) {
@@ -120,8 +135,12 @@ function reduce(state: PoolDropCreateState = defaultPoolDropState, action: AnyAc
             return {...state, totalAmount: action.payload.value, error: undefined};
         case Actions.CREATE_FAILED:
             return {...state, error: action.payload.message};
+        case Actions.SHOW_WHITELISTED_EMAILS:
+            return {...state, showWhiteListedEmails:!state.showWhiteListedEmails,whiteListedEmails:'',error: undefined}
         case PoolDropServiceActions.CREATE_POOL_DROP_FAILED:
             return {...state, error: action.payload.message};
+        case Actions.ONCHANGE_WHITE_LISTED_EMAILS:
+            return {...state, whiteListedEmails: action.payload.value, error: undefined}
         default:
             return state;
     }

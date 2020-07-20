@@ -25,6 +25,8 @@ export interface PoolDropCreateState {
     completedMessage: string;
     completedLink: string;
     error?: string;
+    whiteListedEmails: string;
+    showWhiteListedEmails: boolean;
 }
 
 export interface RootState {

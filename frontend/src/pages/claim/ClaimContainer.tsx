@@ -87,7 +87,7 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
                 </Row>
             </>
         );
-    } else if (props.filled && !props.isOwner) {
+    } else if (props.filled && !props.isOwner && !props.alreadyClaimed) {
         details = (
             <>
                 <Row withPadding centered>
@@ -136,6 +136,22 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
                             value={intl('claimed-out-of', {count: props.claimedCount, total: props.claimedTotal})}
                             disabled={true}
                         />
+                    </Row>
+                    <Row withPadding center>
+                        <ThemedText.H3>{'Claimed Users'}</ThemedText.H3>
+                    </Row>
+                    <Row withPadding>
+                        {
+                            (props.claimedCount > 0) &&
+                            props.claimed.map(
+                                (e:any) => (
+                                    <InputGroupAddon
+                                        value={e.email}
+                                        disabled={true}
+                                    />
+                                )
+                            )
+                        }
                     </Row>
                     <Row withPadding center>
                         <ThemedText.H3>{intl('pool-drop-link')}</ThemedText.H3>

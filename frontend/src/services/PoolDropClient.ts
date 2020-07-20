@@ -16,7 +16,7 @@ export const PoolDropServiceActions = {
     AUTHENTICATION_COMPLETED: 'AUTHENTICATION_COMPLETED',
     USER_DATA_RECEIVED: 'USER_DATA_RECEIVED',
     ACTIVE_POOLDROPS_RECEIVED: 'ACTIVE_POOLDROPS_RECEIVED',
-
+    ONCHANGE_WHITE_LISTED_EMAILS: 'ONCHANGE_WHITE_LISTED_EMAILS',
     POOL_DROP_RECEIVED: 'POOL_DROP_RECEIVED',
     POOL_DROP_RECEIVE_FAILED: 'POOL_DROP_RECEIVE_FAILED',
     CLAIM_FAILED: 'CLAIM_FAILED',
@@ -66,6 +66,7 @@ export class PoolDropClient implements Injectable {
         numberOfParticipants: number,
         completedMessage?: string,
         completedLink?: string,
+        restrictedParticipants?: string
     ): Promise<PoolDrop|undefined> {
         try {
             ValidationUtils.isTrue(!!currency, "'currency' is required");
@@ -89,6 +90,7 @@ export class PoolDropClient implements Injectable {
                     participationAmountFormatted,
                     completedMessage,
                     completedLink,
+                    restrictedParticipants
                 }, params: [] } as JsonRpcRequest);
             if (!poolDrop) {
                 dispatch(addAction(Actions.CREATE_POOL_DROP_FAILED, { message: 'Could not connect to Unifyre' }));

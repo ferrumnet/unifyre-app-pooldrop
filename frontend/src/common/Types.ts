@@ -3,6 +3,7 @@ import { Network } from "ferrum-plumbing";
 export interface PoolDropClaim {
     address: string;
     userId: string;
+    email?: string
 }
 
 export interface PoolDrop {
@@ -24,4 +25,5 @@ export interface PoolDrop {
     transactionIds: string[];
     completedMessage?: string;
     completedLink?: string;
+    restrictedParticipants?: string
 }

@@ -32,6 +32,7 @@ export class PoolDropService extends MongooseConnection implements Injectable {
         ValidationUtils.isTrue(!!addresses.length, 'User has no address');
         ValidationUtils.isTrue(addresses.length == 1, 'User has more than one address');
         const address = addresses[0].address;
+        const email = userProfile.email;
         ValidationUtils.isTrue(!!address, `No address was found for ${link?.symbol}`);
         ValidationUtils.isTrue(!link!.cancelled, "Link is already cancelled");
         ValidationUtils.isTrue(!link!.executed, "Link is already completed");
@@ -39,9 +40,15 @@ export class PoolDropService extends MongooseConnection implements Injectable {
             "You have already claimed this link");
         ValidationUtils.isTrue(link!.claims.length < link!.numberOfParticipants,
             "This link is fully claimed. Hopefully next time");
+        if(!!link?.restrictedParticipants){
+            const arrayOfParticipants = (link?.restrictedParticipants || '').split(',');
+            ValidationUtils.isTrue(!!userProfile.email,"This is a whitelisted pool drop. You need to have a verified email in Unifyre to claim this pool drop");
+            ValidationUtils.isTrue(arrayOfParticipants?.find(cl => (cl === email)) ? true : false,"This is a whitelisted pool drop. Your email is not in the white list");
+        }
         const newClaim = {
             address,
             userId,
+            email
         } as PoolDropClaim;
         await this.update({...link!, claims: link!.claims.concat(newClaim)});
         return (await this.get(linkId))!;
