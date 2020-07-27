@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext,useState } from 'react';
 import {
     Page, PageTopPart, Row, Gap, ThemedText, ThemedButton, ErrorMessage, InputGroupAddon, ThemedLink,
     // @ts-ignore
@@ -20,6 +20,15 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
     const linkIdQuery = Utils.getQueryparam('linkId');
     const {onClaim, onLoad, id} = props;
     const alert = useAlert();
+    const [showMore,setShowMore] = useState(true);
+    let showDefault;
+    const showMoreBeneficiaries = () => {
+        showMore ?
+        showDefault = props.claimed.slice(0,5)
+        : showDefault = props.claimed
+        return showDefault;
+    }
+
     useEffect(() => {
         if (!id) {
             onLoad(linkIdQuery || linkId);
@@ -140,19 +149,27 @@ function ClaimComponent(props: ClaimProps&ClaimDispatch) {
                     <Row withPadding center>
                         <ThemedText.H3>{'Claimed Users'}</ThemedText.H3>
                     </Row>
-                    <Row withPadding>
-                        {
-                            (props.claimedCount > 0) &&
-                            props.claimed.map(
-                                (e:any) => (
-                                    <InputGroupAddon
-                                        value={e.email}
-                                        disabled={true}
-                                    />
+                    {
+                        (props.claimedCount > 0) &&
+                        <>
+                            {   showMoreBeneficiaries().map(
+                                (e:any) => 
+                                    <Row withPadding center>
+                                        <InputGroupAddon
+                                            value={e.email}
+                                            disabled={true}
+                                        />
+                                    </Row>
                                 )
-                            )
-                        }
-                    </Row>
+                            }
+                            {
+                                (props.claimedCount > 5) &&
+                                <Row withPadding centered>
+                                    <ThemedLink text={showMore ? 'show More' : 'Collapse'} onClick={() => setShowMore(!showMore)} />
+                                </Row>
+                            }
+                        </>
+                    }
                     <Row withPadding center>
                         <ThemedText.H3>{intl('pool-drop-link')}</ThemedText.H3>
                     </Row>
