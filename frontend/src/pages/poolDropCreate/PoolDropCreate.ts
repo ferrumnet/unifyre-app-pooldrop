@@ -98,7 +98,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
                 numberOfParticipants,
                 props.completedMessage,
                 props.completedLink,
-                props.whiteListedEmails
+                props.whiteListedEmails.toLowerCase()
                 );
             if (pd) {
                 history.replace(`/claim/${pd.id}`);
