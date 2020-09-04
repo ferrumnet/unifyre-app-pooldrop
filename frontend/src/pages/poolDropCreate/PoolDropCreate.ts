@@ -73,6 +73,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
         try {
             const client = inject<PoolDropClient>(PoolDropClient);
             const numberOfParticipants = Number(props.numberOfParticipants)
+            console.log('PROPS', props)
             const validatedEmails =  Utils.validateMultipleEmails(props.whiteListedEmails);
             ValidationUtils.isTrue(Big(props.totalAmount || '0').gt(Big(0)), 'Total amount must be positive');
             ValidationUtils.isTrue(numberOfParticipants <= 100, 'Maximum number of participants is 100');
@@ -81,9 +82,10 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
             ValidationUtils.isTrue(Big(props.totalAmount).lte(Big(props.balance)), 'Not enough balance');
             ValidationUtils.isTrue(!props.completedLink || props.completedLink.startsWith('http'),
                 'Link must start with https://');
-            if(props.showWhiteListedEmails){
-                ValidationUtils.isTrue(!validatedEmails.invalidEmails[0], `Invalid Email(s) Entered : ${validatedEmails.invalidEmails.toString()}`);
-                ValidationUtils.isTrue(validatedEmails.validEmails.length >= Math.round(numberOfParticipants), `Valid number of Participants cannot be less than Number of Allowed participants`);
+            if(props.showWhiteListedEmails) {
+                ValidationUtils.isTrue(!!validatedEmails, `Make sure to enter valid emails`);
+                ValidationUtils.isTrue(!validatedEmails!.invalidEmails.length, `Invalid Email(s) Entered : ${validatedEmails!.invalidEmails.toString()}`);
+                ValidationUtils.isTrue(validatedEmails!.validEmails.length >= numberOfParticipants, `Valid number of Participants cannot be less than Number of Allowed participants`);
             }
             const pref = inject<UserPreferenceService>(UserPreferenceService);
             pref.update(dispatch, {
@@ -98,7 +100,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => ({
                 numberOfParticipants,
                 props.completedMessage,
                 props.completedLink,
-                props.whiteListedEmails.toLowerCase()
+                (validatedEmails?.validEmails || []).join(','),
                 );
             if (pd) {
                 history.replace(`/claim/${pd.id}`);

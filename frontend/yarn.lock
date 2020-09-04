@@ -9718,9 +9718,9 @@ react-error-overlay@^6.0.7:
   integrity sha512-TAv1KJFh3RhqxNvhzxj6LeT5NWklP6rDr2a0jaTfsZ5wSZWHOGeqQyejUp3xxLfPt2UpyJEcVQB/zyPcmonNFA==
 
 react-icons@^3.10.0:
-  version "3.10.0"
-  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-3.10.0.tgz#6c217a2dde2e8fa8d293210023914b123f317297"
-  integrity sha512-WsQ5n1JToG9VixWilSo1bHv842Cj5aZqTGiS3Ud47myF6aK7S/IUY2+dHcBdmkQcCFRuHsJ9OMUI0kTDfjyZXQ==
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-3.11.0.tgz#2ca2903dfab8268ca18ebd8cc2e879921ec3b254"
+  integrity sha512-JRgiI/vdF6uyBgyZhVyYJUZAop95Sy4XDe/jmT3R/bKliFWpO/uZBwvSjWEdxwzec7SYbEPNPck0Kff2tUGM2Q==
   dependencies:
     camelcase "^5.0.0"
 
@@ -11701,7 +11701,7 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-web-components@git+https://github.com/ferrumnet/unifyre-web-components.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-web-components.git#de16fa0c17d391398fd5ac1a701eff06e550eb25"
+  resolved "git+https://github.com/ferrumnet/unifyre-web-components.git#3d00278e502a1fbd80a7a64f3ec46ee723d8e407"
   dependencies:
     react-icons "^3.10.0"
     unifyre-react-helper "git+https://github.com/ferrumnet/unifyre-react-helper.git"

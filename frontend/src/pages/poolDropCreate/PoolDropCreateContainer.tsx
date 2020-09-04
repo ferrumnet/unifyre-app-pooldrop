@@ -95,7 +95,11 @@ function PoolDropCreateComponent(props: PoolDropCreateProps&PoolDropCreateDispat
                         <ThemedText.SMALL>{'Participant Emails (Comma seperated)'}</ThemedText.SMALL>
                     </Row>
                     <Row withPadding>
-                        <InputGroupAddon value={props.whiteListedEmails} onChange={props.onWhiteListedEmailChanged}/>
+                        <InputGroupAddon
+                            multiline={true}
+                            numberOfLines={3}
+                            value={props.whiteListedEmails}
+                            onChange={props.onWhiteListedEmailChanged}/>
                     </Row>
                 </>
             }

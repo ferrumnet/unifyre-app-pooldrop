@@ -39,22 +39,21 @@ export class Utils {
             `https://etherscan.io/tx/${tid}`;
     }
 
-    static validateMultipleEmails (emailInput: any) {
+    static validateMultipleEmails (emailInput?: string) {
         // Get value on emails input as a string
-        let emails = emailInput;
+        if (!emailInput) { return undefined }
         
         // Split string by comma into an array
-        emails = emails.split(",");
+        const emails = emailInput!.split(",");
     
-        const valid = true;
         const regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         
-        const invalidEmails = [];
-        const validEmails = [];
+        const invalidEmails: string[] = [];
+        const validEmails: string[] = [];
         
         for (var i = 0; i < emails.length; i++) {
             // Trim whitespaces from email address
-            emails[i] = emails[i].trim();
+            emails[i] = emails[i].trim().toLowerCase();
             
             // Check email against our regex to determine if email is valid
             if( emails[i] == "" || ! regex.test(emails[i])){
