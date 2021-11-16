@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
-    "aws-sdk": "^2.572.0",
+    "aws-sdk": "^2.814.0",
     "big.js": "^5.2.2",
     "cross-fetch": "^3.0.4",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
