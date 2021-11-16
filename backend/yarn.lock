@@ -1747,10 +1747,10 @@ atob@^2.1.2:
     mongoose "^5.7.7"
     unifyre-extension-sdk "git+https://github.com/ferrumnet/unifyre-extension-sdk.git"
 
-aws-sdk@^2.572.0:
-  version "2.705.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.705.0.tgz#6c42851f0efdfe2685eb2dab72740a01742468bd"
-  integrity sha512-eD3YD3UgCdFIYlkAVYW1rbriKSNHm7nsZbYsBuo91pbyq4XYT56w2oTyNECorYPoq//Y4LQTTx8cbOuEjsNi3w==
+aws-sdk@^2.572.0, aws-sdk@^2.814.0:
+  version "2.814.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.814.0.tgz#7a1c36006e0b5826f14bd2511b1d229ef6814bb0"
+  integrity sha512-empd1m/J/MAkL6d9OeRpmg9thobULu0wk4v8W3JToaxGi2TD7PIdvE6yliZKyOVAdJINhBWEBhxR4OUIHhcGbQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
