@@ -39,7 +39,7 @@
     "big.js": "^5.2.2",
     "cross-fetch": "^3.0.4",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
-    "got": "^11.3.0",
+    "got": "^11.8.5",
     "mongoose": "^5.7.7",
     "swarm-js": "^0.1.40",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
