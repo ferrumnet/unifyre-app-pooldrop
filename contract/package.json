@@ -13,6 +13,6 @@
     "truffle-flattener": "^1.4.4"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.0.2"
+    "@openzeppelin/contracts": "^4.7.2"
   }
 }
